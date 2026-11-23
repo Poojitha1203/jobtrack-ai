@@ -155,3 +155,16 @@ vite.config.ts.timestamp-*
 .nx/cache
 .nx/workspace-data
 .nx/migrate-runs
+
+# --- JobTrack AI additions ---
+# macOS / editors
+.DS_Store
+.idea/
+*.swp
+
+# Vercel CLI local link
+.vercel
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/
