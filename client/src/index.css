@@ -38,4 +38,9 @@
   body {
     @apply bg-slate-50 text-slate-900 antialiased;
   }
+
+  /* Stop the page behind an open modal from scrolling */
+  body:has(dialog[open]) {
+    overflow: hidden;
+  }
 }
