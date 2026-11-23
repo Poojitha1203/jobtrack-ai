@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Building2, CalendarPlus, ExternalLink, FileSearch, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, BellPlus, Building2, CalendarPlus, ExternalLink, FileSearch, MapPin, Pencil, Trash2 } from 'lucide-react';
 import { Card, CardHeader } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
 import { Alert } from '../components/ui/Alert.tsx';
@@ -11,6 +11,8 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog.tsx';
 import { ApplicationFormModal } from '../components/applications/ApplicationFormModal.tsx';
 import { InterviewList } from '../components/interviews/InterviewList.tsx';
 import { useInterviewDialogs } from '../hooks/useInterviewDialogs.tsx';
+import { useReminderDialogs } from '../hooks/useReminderDialogs.tsx';
+import { followUpDefaults } from '../lib/reminderForm.ts';
 import { listInterviews } from '../services/interviews.ts';
 import { useAsyncData } from '../hooks/useAsyncData.ts';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.ts';
@@ -70,6 +72,7 @@ export function ApplicationDetailsPage() {
     interviews.reload();
     reload();
   });
+  const reminderDialogs = useReminderDialogs(() => undefined);
 
   if (error) {
     const notFound = error instanceof ApiError && error.status === 404;
@@ -162,6 +165,9 @@ export function ApplicationDetailsPage() {
                 <option key={s} value={s}>{STATUS_META[s].label}</option>
               ))}
             </SelectField>
+            <Button variant="secondary" onClick={() => reminderDialogs.openCreate(followUpDefaults(app.id, app.company.name))}>
+              <BellPlus className="size-4" aria-hidden="true" /> Remind me
+            </Button>
             <Button variant="secondary" onClick={() => setEditing(true)}>
               <Pencil className="size-4" aria-hidden="true" /> Edit
             </Button>
@@ -256,6 +262,7 @@ export function ApplicationDetailsPage() {
       />
 
       {interviewDialogs.dialogs}
+      {reminderDialogs.dialogs}
 
       <ConfirmDialog
         open={confirmingDelete}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { BriefcaseBusiness, MessagesSquare, Plus, Rocket, Send, Trophy } from 'lucide-react';
+import { BellRing, BriefcaseBusiness, MessagesSquare, Plus, Rocket, Send, Trophy } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader.tsx';
 import { StatCard } from '../components/dashboard/StatCard.tsx';
 import { ActivityChart } from '../components/dashboard/ActivityChart.tsx';
@@ -21,6 +21,7 @@ import { useAuth } from '../hooks/useAuth.ts';
 import { useAsyncData } from '../hooks/useAsyncData.ts';
 import { listAllApplications } from '../services/applications.ts';
 import { listInterviews } from '../services/interviews.ts';
+import { listReminders } from '../services/reminders.ts';
 
 const DEFAULT_WEEKLY_GOAL = 5;
 
@@ -46,10 +47,28 @@ export function DashboardPage() {
   const { data: applications, error, reload } = useAsyncData(listAllApplications, 'dashboard-applications');
   const [upcomingFrom] = useState(() => new Date().toISOString());
   const upcoming = useAsyncData(() => listInterviews({ from: upcomingFrom, order: 'asc', limit: 4 }), 'dashboard-interviews');
+  const dueReminders = useAsyncData(
+    () => listReminders({ status: 'open', to: new Date().toISOString(), limit: 50 }),
+    'dashboard-due-reminders',
+  );
+  const dueCount = dueReminders.data?.length ?? 0;
 
   const firstName = getDisplayName(profile, user).split(/[\s@]/)[0];
   const weeklyGoal = profile?.weeklyGoal ?? DEFAULT_WEEKLY_GOAL;
   const now = new Date();
+
+  const dueBanner = dueCount > 0 && (
+    <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center">
+      <BellRing className="size-5 shrink-0 text-amber-600" aria-hidden="true" />
+      <p className="flex-1 text-sm text-amber-900">
+        You have <strong>{dueCount}</strong> reminder{dueCount === 1 ? '' : 's'} due
+        {dueReminders.data?.[0] && <> — next up: “{dueReminders.data[0].title}”</>}.
+      </p>
+      <Link to="/reminders" className={buttonClasses({ variant: 'secondary', size: 'sm' })}>
+        View reminders
+      </Link>
+    </div>
+  );
 
   const header = (
     <PageHeader
@@ -115,6 +134,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       {header}
+      {dueBanner}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
