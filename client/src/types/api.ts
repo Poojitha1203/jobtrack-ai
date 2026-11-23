@@ -30,6 +30,13 @@ export interface Profile {
   createdAt: string;
 }
 
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export type UpdateProfileInput = Partial<
   Pick<Profile, 'fullName' | 'headline' | 'location' | 'weeklyGoal'>
 >;

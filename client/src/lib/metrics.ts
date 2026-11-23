@@ -1,8 +1,8 @@
 import { APPLICATION_STATUSES, type Application, type ApplicationStatus } from '../types/application.ts';
 import { addDays, startOfWeek } from './date.ts';
+import { parseDateOnly } from './format.ts';
 
-// Pure functions that turn a list of applications into dashboard numbers.
-// They don't care where the data comes from: sample data now, the database in Phase 4.
+type MetricInput = Pick<Application, 'status' | 'appliedAt'>;
 
 export const percent = (part: number, whole: number) =>
   whole === 0 ? 0 : Math.round((part / whole) * 100);
@@ -13,17 +13,15 @@ const INTERVIEWED: ApplicationStatus[] = ['interview', 'offer'];
 export interface DashboardMetrics {
   total: number;
   byStatus: Record<ApplicationStatus, number>;
-  /** Everything except wishlist items, i.e. applications actually sent. */
+  /** Everything except wishlist items. */
   submitted: number;
-  /** % of submitted applications that got any reply (assessment, interview, offer, or rejection). */
   responseRate: number;
-  /** % of submitted applications that reached the interview stage. */
   interviewRate: number;
-  /** % of interviewed applications that turned into an offer. */
+  /** % of interviewed applications that became offers. */
   interviewConversion: number;
 }
 
-export function computeMetrics(applications: Application[]): DashboardMetrics {
+export function computeMetrics(applications: MetricInput[]): DashboardMetrics {
   const byStatus = Object.fromEntries(APPLICATION_STATUSES.map((s) => [s, 0])) as Record<
     ApplicationStatus,
     number
@@ -49,9 +47,8 @@ export interface WeekBucket {
   count: number;
 }
 
-/** Number of applications sent per week for the last `weeks` weeks (oldest first). */
 export function weeklyActivity(
-  applications: Application[],
+  applications: MetricInput[],
   weeks = 8,
   today: Date = new Date(),
 ): WeekBucket[] {
@@ -63,16 +60,15 @@ export function weeklyActivity(
 
   for (const app of applications) {
     if (!app.appliedAt) continue;
-    const week = startOfWeek(new Date(app.appliedAt)).getTime();
+    const week = startOfWeek(parseDateOnly(app.appliedAt)).getTime();
     const bucket = buckets.find((b) => b.weekStart.getTime() === week);
     if (bucket) bucket.count += 1;
   }
   return buckets;
 }
 
-/** Applications sent since Monday of the current week. */
-export function appliedThisWeek(applications: Application[], today: Date = new Date()): number {
+export function appliedThisWeek(applications: MetricInput[], today: Date = new Date()): number {
   const weekStart = startOfWeek(today).getTime();
-  return applications.filter((a) => a.appliedAt && new Date(a.appliedAt).getTime() >= weekStart)
+  return applications.filter((a) => a.appliedAt && parseDateOnly(a.appliedAt).getTime() >= weekStart)
     .length;
 }
