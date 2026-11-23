@@ -15,6 +15,8 @@ import { ApplicationDetailsPage } from './pages/ApplicationDetailsPage.tsx';
 import { KanbanPage } from './pages/KanbanPage.tsx';
 import { CompaniesPage } from './pages/CompaniesPage.tsx';
 import { CompanyDetailsPage } from './pages/CompanyDetailsPage.tsx';
+import { InterviewsPage } from './pages/InterviewsPage.tsx';
+import { CalendarPage } from './pages/CalendarPage.tsx';
 import { ComingSoonPage } from './pages/ComingSoonPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import { NAV_ITEMS } from './config/navigation.ts';
@@ -26,6 +28,8 @@ const BUILT_PAGES: Record<string, ReactNode> = {
   '/applications': <ApplicationsPage />,
   '/board': <KanbanPage />,
   '/companies': <CompaniesPage />,
+  '/interviews': <InterviewsPage />,
+  '/calendar': <CalendarPage />,
 };
 
 export const router = createBrowserRouter([
