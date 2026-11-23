@@ -6,6 +6,7 @@ import { useAsyncData } from '../../hooks/useAsyncData.ts';
 import { ApiError } from '../../services/api.ts';
 import { createApplication, getApplication, updateApplication } from '../../services/applications.ts';
 import { listCompanies } from '../../services/companies.ts';
+import { listResumes } from '../../services/resumes.ts';
 import {
   changedFields,
   toApplicationInput,
@@ -34,6 +35,7 @@ function toFormErrors(error: unknown): ApplicationFormErrors {
 
 function FormBody({ application, defaults, onClose, onSaved }: Omit<ApplicationFormModalProps, 'open'>) {
   const companies = useAsyncData(listCompanies, 'companies');
+  const resumes = useAsyncData(listResumes, 'form-resumes');
   // List rows don't include the (long) job description, so load the full record before editing.
   const full = useAsyncData(
     () =>
@@ -50,7 +52,7 @@ function FormBody({ application, defaults, onClose, onSaved }: Omit<ApplicationF
       </div>
     );
   }
-  if (application && !full.data) {
+  if ((application && !full.data) || (!resumes.data && !resumes.error)) {
     return (
       <div className="flex justify-center p-12" role="status">
         <Loader2 className="size-6 animate-spin text-brand-600" aria-label="Loading application" />
@@ -59,7 +61,10 @@ function FormBody({ application, defaults, onClose, onSaved }: Omit<ApplicationF
   }
 
   const existing = full.data;
-  const initialValues = existing ? toFormValues(existing) : { ...toFormValues(), ...defaults };
+  const defaultResumeId = resumes.data?.find((r) => r.isDefault)?.id ?? '';
+  const initialValues = existing
+    ? toFormValues(existing)
+    : { ...toFormValues(), resumeId: defaultResumeId, ...defaults };
 
   const handleSubmit = async (values: typeof initialValues) => {
     try {
@@ -82,6 +87,7 @@ function FormBody({ application, defaults, onClose, onSaved }: Omit<ApplicationF
     <ApplicationForm
       initialValues={initialValues}
       companies={companies.data ?? []}
+      resumes={resumes.data ?? []}
       submitLabel={existing ? 'Save changes' : 'Add application'}
       onSubmit={handleSubmit}
       onCancel={onClose}

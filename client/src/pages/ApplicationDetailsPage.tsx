@@ -235,6 +235,13 @@ export function ApplicationDetailsPage() {
             <DetailRow label="Work mode">{app.workMode ? WORK_MODE_LABELS[app.workMode] : '—'}</DetailRow>
             <DetailRow label="Salary">{salary ?? '—'}</DetailRow>
             <DetailRow label="Source">{app.source ?? '—'}</DetailRow>
+            <DetailRow label="Resume">
+              {app.resume ? (
+                <Link to="/resumes" className="text-brand-600 hover:text-brand-700">{app.resume.title}</Link>
+              ) : (
+                '—'
+              )}
+            </DetailRow>
             <DetailRow label="Job posting">
               {app.jobUrl ? (
                 <a href={app.jobUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-brand-600 hover:text-brand-700">

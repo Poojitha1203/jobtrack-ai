@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 6 (companies, interviews, calendar, reminders) complete.
+> **Status:** In development — Phase 7 in progress (resume management done; job match and skill gap analyzers next).
 
 ## Features
 
@@ -101,11 +101,13 @@ cp client/.env.example client/.env
    2. `20261123000100_data_api_grants.sql` — explicit API privileges (required on Supabase projects created after May 2026, which no longer expose new tables automatically)
    3. `20261124000000_application_list_view.sql` — applications joined with company names, for search and sorting
    4. `20261125000000_move_application_function.sql` — saves Kanban moves (status + card order) in one transaction
+   5. `20261126000000_resume_storage.sql` — private `resumes` storage bucket (PDF, 5 MB max) with per-user folder policies
 3. **Authentication → Sign In / Providers → Email**: for local development turn **Confirm email** off (see the email note below).
 4. **Authentication → URL Configuration**: set **Site URL** to `http://localhost:5173` and add `http://localhost:5173/**` under **Redirect URLs**.
 5. **Project Settings → API Keys**: copy the **Project URL** and the **publishable key** (`sb_publishable_…`) into both `client/.env` and `server/.env`.
 
 > **Free-tier notes:** 500 MB database, 1 GB file storage, 50,000 monthly active users, 2 active projects. Projects **pause after 1 week of inactivity** (resume from the dashboard; data is kept).
+> Storage: 1 GB total, 50 MB max per file (this app limits resumes to 5 MB), 5 GB egress per month.
 > Supabase's built-in email sends only **to your project team's addresses** and only about **2 emails per hour**. That's enough to test password reset with your own email. For real users, connect a free SMTP provider in **Authentication → Emails → SMTP Settings**.
 
 To make yourself an admin (needed in Phase 11), run in the SQL Editor:
@@ -151,6 +153,8 @@ All endpoints except `/api/health` require `Authorization: Bearer <Supabase acce
 | GET / PATCH / DELETE | `/api/interviews/:id` | Read, update, delete one interview |
 | GET / POST | `/api/reminders` | List (`status=open\|completed\|all`, `from`, `to`, `applicationId`) / create |
 | PATCH / DELETE | `/api/reminders/:id` | Update (including `isCompleted`) or delete a reminder |
+| GET / POST | `/api/resumes` | List / register an uploaded PDF (file goes directly to Supabase Storage) |
+| PATCH / DELETE | `/api/resumes/:id` | Rename, set default, or delete (also removes the stored file) |
 
 ## Environment variables
 

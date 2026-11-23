@@ -29,6 +29,9 @@ export interface Application {
   /** YYYY-MM-DD */
   appliedAt: string | null;
   notes: string | null;
+  resumeId: string | null;
+  /** Only returned by the single-application endpoint. */
+  resume?: { id: string; title: string } | null;
   /** Card order inside its Kanban column. */
   position: number;
   createdAt: string;
@@ -50,6 +53,7 @@ export interface ApplicationInput {
   status: ApplicationStatus;
   appliedAt: string | null;
   notes: string | null;
+  resumeId: string | null;
 }
 
 export type SortField = 'appliedAt' | 'createdAt' | 'updatedAt' | 'jobTitle' | 'company' | 'status' | 'salary';

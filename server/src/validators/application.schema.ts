@@ -24,6 +24,7 @@ const applicationFields = z.object({
   status: z.enum(APPLICATION_STATUSES),
   appliedAt: z.iso.date('Use the format YYYY-MM-DD').nullable(),
   notes: optionalText(5000),
+  resumeId: z.uuid().nullable(),
 });
 
 type SalaryRange = { salaryMin?: number | null; salaryMax?: number | null };

@@ -16,6 +16,8 @@ interface ApplicationRow {
   company_id: string;
   company_name?: string; // from the application_list view
   company?: { id: string; name: string }; // from an embedded companies(...) select
+  resume_id: string | null;
+  resume?: { id: string; title: string } | null;
   job_title: string;
   location: string | null;
   job_type: JobType | null;
@@ -35,13 +37,16 @@ interface ApplicationRow {
 }
 
 const BASE_COLUMNS =
-  'id, company_id, job_title, location, job_type, work_mode, salary_min, salary_max, salary_currency, ' +
+  'id, company_id, resume_id, job_title, location, job_type, work_mode, salary_min, salary_max, salary_currency, ' +
   'job_url, source, status, applied_at, notes, position, created_at, updated_at';
 
 const LIST_COLUMNS = `${BASE_COLUMNS}, company_name`;
-const DETAIL_COLUMNS = `${BASE_COLUMNS}, job_description, company:companies(id, name)`;
+const DETAIL_COLUMNS = `${BASE_COLUMNS}, job_description, company:companies(id, name), resume:resumes(id, title)`;
 
 const NO_ROWS = 'PGRST116';
+
+// The (resume_id, user_id) foreign key rejects another user's resume.
+const unknownResume = () => new HttpError(400, 'That resume was not found', { resumeId: ['Choose one of your resumes'] });
 
 function toResponse(row: ApplicationRow): ApplicationResponse {
   return {
@@ -60,6 +65,8 @@ function toResponse(row: ApplicationRow): ApplicationResponse {
     status: row.status,
     appliedAt: row.applied_at,
     notes: row.notes,
+    resumeId: row.resume_id,
+    ...(row.resume !== undefined ? { resume: row.resume } : {}),
     position: row.position,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -81,6 +88,7 @@ function toColumns(input: Omit<UpdateApplicationInput, 'companyName'>) {
     status: 'status',
     appliedAt: 'applied_at',
     notes: 'notes',
+    resumeId: 'resume_id',
   };
   const columns: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(input)) {
@@ -162,6 +170,7 @@ export async function createApplication(
     .insert({ ...toColumns(fields), user_id: userId, company_id: company.id })
     .select(DETAIL_COLUMNS)
     .single<ApplicationRow>();
+  if (error?.code === '23503') throw unknownResume();
   if (error) throw new Error(`Failed to create application: ${error.message}`);
   return toResponse(data);
 }
@@ -186,6 +195,7 @@ export async function updateApplication(
     .single<ApplicationRow>();
   if (error?.code === NO_ROWS) throw new HttpError(404, 'Application not found');
   if (error?.code === '23514') throw new HttpError(400, 'Maximum salary must be greater than or equal to minimum');
+  if (error?.code === '23503') throw unknownResume();
   if (error) throw new Error(`Failed to update application: ${error.message}`);
   return toResponse(data);
 }
