@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { BriefcaseBusiness, MessagesSquare, Plus, Rocket, Send, Trophy } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader.tsx';
@@ -19,6 +20,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle.ts';
 import { useAuth } from '../hooks/useAuth.ts';
 import { useAsyncData } from '../hooks/useAsyncData.ts';
 import { listAllApplications } from '../services/applications.ts';
+import { listInterviews } from '../services/interviews.ts';
 
 const DEFAULT_WEEKLY_GOAL = 5;
 
@@ -42,6 +44,8 @@ export function DashboardPage() {
   useDocumentTitle('Dashboard');
   const { profile, user } = useAuth();
   const { data: applications, error, reload } = useAsyncData(listAllApplications, 'dashboard-applications');
+  const [upcomingFrom] = useState(() => new Date().toISOString());
+  const upcoming = useAsyncData(() => listInterviews({ from: upcomingFrom, order: 'asc', limit: 4 }), 'dashboard-interviews');
 
   const firstName = getDisplayName(profile, user).split(/[\s@]/)[0];
   const weeklyGoal = profile?.weeklyGoal ?? DEFAULT_WEEKLY_GOAL;
@@ -122,7 +126,7 @@ export function DashboardPage() {
         <StatCard
           label="Interviews"
           value={metrics.byStatus.interview}
-          hint="Applications at the interview stage"
+          hint={upcoming.data ? `${upcoming.data.length}${upcoming.data.length === 4 ? '+' : ''} scheduled ahead` : 'Applications at the interview stage'}
           icon={MessagesSquare}
           accent="violet"
         />
@@ -155,7 +159,7 @@ export function DashboardPage() {
         <div className="lg:col-span-2">
           <RecentApplications applications={recent} />
         </div>
-        <UpcomingInterviews interviews={[]} />
+        <UpcomingInterviews interviews={upcoming.error ? [] : upcoming.data} />
       </div>
     </div>
   );

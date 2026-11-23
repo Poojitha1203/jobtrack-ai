@@ -1,4 +1,5 @@
 import type { ApplicationStatus, JobType, WorkMode } from '../constants/application.js';
+import type { InterviewResult, InterviewType } from '../constants/interview.js';
 
 export interface ApiErrorResponse {
   error: {
@@ -64,6 +65,27 @@ export interface ApplicationResponse {
   appliedAt: string | null;
   notes: string | null;
   position: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InterviewResponse {
+  id: string;
+  applicationId: string;
+  application: {
+    id: string;
+    jobTitle: string;
+    status: ApplicationStatus;
+    company: CompanySummary;
+  };
+  round: string;
+  interviewType: InterviewType;
+  scheduledAt: string;
+  durationMinutes: number | null;
+  meetingLink: string | null;
+  preparationNotes: string | null;
+  feedback: string | null;
+  result: InterviewResult;
   createdAt: string;
   updatedAt: string;
 }

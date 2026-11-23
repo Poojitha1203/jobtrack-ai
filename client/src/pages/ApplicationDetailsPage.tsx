@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Building2, ExternalLink, FileSearch, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Building2, CalendarPlus, ExternalLink, FileSearch, MapPin, Pencil, Trash2 } from 'lucide-react';
 import { Card, CardHeader } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
 import { Alert } from '../components/ui/Alert.tsx';
@@ -9,6 +9,9 @@ import { Skeleton } from '../components/ui/Skeleton.tsx';
 import { SelectField } from '../components/ui/SelectField.tsx';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog.tsx';
 import { ApplicationFormModal } from '../components/applications/ApplicationFormModal.tsx';
+import { InterviewList } from '../components/interviews/InterviewList.tsx';
+import { useInterviewDialogs } from '../hooks/useInterviewDialogs.tsx';
+import { listInterviews } from '../services/interviews.ts';
 import { useAsyncData } from '../hooks/useAsyncData.ts';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.ts';
 import { useToast } from '../hooks/useToast.ts';
@@ -61,6 +64,12 @@ export function ApplicationDetailsPage() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [savingStatus, setSavingStatus] = useState(false);
+
+  const interviews = useAsyncData(() => listInterviews({ applicationId: id, order: 'asc' }), `application-interviews:${id}`);
+  const interviewDialogs = useInterviewDialogs(() => {
+    interviews.reload();
+    reload();
+  });
 
   if (error) {
     const notFound = error instanceof ApiError && error.status === 404;
@@ -166,6 +175,29 @@ export function ApplicationDetailsPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Card>
+            <CardHeader
+              title="Interviews"
+              action={
+                <Button size="sm" variant="secondary" onClick={() => interviewDialogs.openCreate({ applicationId: app.id })}>
+                  <CalendarPlus className="size-4" aria-hidden="true" /> Schedule
+                </Button>
+              }
+            />
+            <div className="p-5">
+              {interviews.error && <Alert tone="error">{interviews.error.message}</Alert>}
+              {!interviews.data && !interviews.error && <Skeleton className="h-16 w-full" />}
+              {interviews.data?.length === 0 && <p className="text-sm text-slate-500">No interviews scheduled for this application.</p>}
+              {interviews.data && interviews.data.length > 0 && (
+                <InterviewList
+                  interviews={interviews.data}
+                  onEdit={interviewDialogs.openEdit}
+                  onDelete={interviewDialogs.openDelete}
+                  hideApplication
+                />
+              )}
+            </div>
+          </Card>
+          <Card>
             <CardHeader title="Job description" />
             <div className="p-5">
               {app.jobDescription ? (
@@ -222,6 +254,8 @@ export function ApplicationDetailsPage() {
           showToast('Application updated');
         }}
       />
+
+      {interviewDialogs.dialogs}
 
       <ConfirmDialog
         open={confirmingDelete}
