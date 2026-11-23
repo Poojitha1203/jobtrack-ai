@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 1 (project setup) complete.
+> **Status:** In development — Phase 2 (design system, landing page, dashboard layout) complete.
 
 ## Features
 
@@ -25,7 +25,7 @@ Planned for v1.0.0:
 
 | Layer      | Technology                                                |
 | ---------- | --------------------------------------------------------- |
-| Frontend   | React 19, Vite, TypeScript, Tailwind CSS v4, Lucide icons |
+| Frontend   | React 19, Vite, TypeScript, Tailwind CSS v4, React Router 7, Lucide icons |
 | Backend    | Node.js, Express 5, TypeScript                            |
 | Database   | Supabase PostgreSQL with Row Level Security               |
 | Auth       | Supabase Auth                                             |
@@ -40,8 +40,19 @@ jobtrack-ai/
 ├── client/                 # React + Vite frontend
 │   ├── public/
 │   └── src/
+│       ├── components/
+│       │   ├── ui/         # Design system: Button, Card, Badge, EmptyState, Skeleton
+│       │   ├── layout/     # Sidebar, Topbar, Logo, PageHeader
+│       │   └── dashboard/  # Dashboard widgets (stats, charts, lists)
+│       ├── config/         # Navigation (single source for sidebar + routes)
+│       ├── data/           # Temporary sample data (replaced in Phase 4)
+│       ├── hooks/          # Reusable React hooks
+│       ├── layouts/        # AppLayout (sidebar + top bar + page)
+│       ├── lib/            # Helpers: dates, metrics, styles
+│       ├── pages/          # Route-level pages
 │       ├── services/       # API client (fetch wrapper)
 │       ├── types/          # Shared TypeScript types
+│       ├── router.tsx      # React Router route table
 │       ├── App.tsx
 │       ├── main.tsx
 │       └── index.css       # Tailwind + design tokens
