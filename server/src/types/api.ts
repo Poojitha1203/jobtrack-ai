@@ -65,6 +65,9 @@ export interface ApplicationResponse {
   status: ApplicationStatus;
   appliedAt: string | null;
   notes: string | null;
+  resumeId: string | null;
+  /** Only included by GET /applications/:id. */
+  resume?: { id: string; title: string } | null;
   position: number;
   createdAt: string;
   updatedAt: string;
@@ -103,6 +106,19 @@ export interface ReminderResponse {
   interviewId: string | null;
   application: { id: string; jobTitle: string; company: CompanySummary } | null;
   interview: { id: string; round: string; scheduledAt: string } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResumeResponse {
+  id: string;
+  title: string;
+  filePath: string;
+  fileName: string;
+  fileSize: number;
+  extractedText: string | null;
+  isDefault: boolean;
+  applicationCount: number;
   createdAt: string;
   updatedAt: string;
 }
