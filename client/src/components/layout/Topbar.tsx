@@ -2,7 +2,7 @@ import { useLocation } from 'react-router';
 import { Menu } from 'lucide-react';
 import { findNavItem } from '../../config/navigation.ts';
 import { buttonClasses } from '../../lib/buttonStyles.ts';
-import { Badge } from '../ui/Badge.tsx';
+import { UserMenu } from './UserMenu.tsx';
 
 interface TopbarProps {
   menuOpen: boolean;
@@ -28,20 +28,8 @@ export function Topbar({ menuOpen, onMenuClick }: TopbarProps) {
 
       <p className="truncate text-sm font-medium text-slate-500">{current?.label ?? 'JobTrack AI'}</p>
 
-      <div className="ml-auto flex items-center gap-3">
-        {/* Replaced with the signed-in user's menu in Phase 3. */}
-        {/* Wrapper controls visibility; putting `hidden` on the Badge itself would clash
-            with the Badge's own `inline-flex` class. */}
-        <span className="hidden sm:block">
-          <Badge tone="warning">Demo mode</Badge>
-        </span>
-        <span
-          className="flex size-9 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700"
-          aria-label="Demo user"
-          role="img"
-        >
-          DU
-        </span>
+      <div className="ml-auto">
+        <UserMenu />
       </div>
     </header>
   );
