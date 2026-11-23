@@ -1,32 +1,54 @@
 import type { ReactNode } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { AppLayout } from './layouts/AppLayout.tsx';
+import { ProtectedRoute } from './components/auth/ProtectedRoute.tsx';
+import { GuestRoute } from './components/auth/GuestRoute.tsx';
 import { LandingPage } from './pages/LandingPage.tsx';
+import { LoginPage } from './pages/auth/LoginPage.tsx';
+import { RegisterPage } from './pages/auth/RegisterPage.tsx';
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage.tsx';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage.tsx';
 import { DashboardPage } from './pages/DashboardPage.tsx';
+import { SettingsPage } from './pages/SettingsPage.tsx';
 import { ComingSoonPage } from './pages/ComingSoonPage.tsx';
-import { AuthPlaceholderPage } from './pages/AuthPlaceholderPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import { NAV_ITEMS } from './config/navigation.ts';
 
 // Pages that exist so far. Every other sidebar entry gets a "coming soon" placeholder.
 const BUILT_PAGES: Record<string, ReactNode> = {
   '/dashboard': <DashboardPage />,
+  '/settings': <SettingsPage />,
 };
 
 export const router = createBrowserRouter([
-  // Public pages (no sidebar)
+  // Public
   { path: '/', element: <LandingPage /> },
-  { path: '/login', element: <AuthPlaceholderPage mode="login" /> },
-  { path: '/register', element: <AuthPlaceholderPage mode="register" /> },
 
-  // App pages: rendered inside AppLayout's <Outlet />.
-  // Phase 3 wraps this group in a "protected route" that requires login.
+  // Only for logged-OUT visitors (logged-in users are redirected to the app)
   {
-    element: <AppLayout />,
-    children: NAV_ITEMS.map((item) => ({
-      path: item.path,
-      element: BUILT_PAGES[item.path] ?? <ComingSoonPage item={item} />,
-    })),
+    element: <GuestRoute />,
+    children: [
+      { path: '/login', element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
+    ],
+  },
+
+  // Reached from the password-reset email (the link signs the user in temporarily)
+  { path: '/reset-password', element: <ResetPasswordPage /> },
+
+  // Only for logged-IN users
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: NAV_ITEMS.map((item) => ({
+          path: item.path,
+          element: BUILT_PAGES[item.path] ?? <ComingSoonPage item={item} />,
+        })),
+      },
+    ],
   },
 
   { path: '*', element: <NotFoundPage /> },

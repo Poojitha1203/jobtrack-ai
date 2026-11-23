@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { isProduction } from '../config/env.js';
+import { HttpError } from '../utils/HttpError.js';
 import type { ApiErrorResponse } from '../types/api.js';
 
 // Reads an HTTP status from any thrown value (HttpError, body-parser errors, etc.).
@@ -23,13 +24,18 @@ export const errorHandler = (
   const status = getStatus(err);
   const message = err instanceof Error ? err.message : 'Unexpected error';
 
-  // Log full details on the server only.
-  console.error(`[${req.method} ${req.originalUrl}]`, err);
+  // Expected client errors (401, 404, validation) don't need a stack trace in the logs.
+  if (status >= 500) {
+    console.error(`[${req.method} ${req.originalUrl}]`, err);
+  } else {
+    console.warn(`[${req.method} ${req.originalUrl}] ${status} ${message}`);
+  }
 
   res.status(status).json({
     error: {
       // Never leak internal error details (stack traces, SQL, etc.) in production.
       message: status >= 500 && isProduction ? 'Internal server error' : message,
+      ...(err instanceof HttpError && err.details ? { details: err.details } : {}),
     },
   });
 };

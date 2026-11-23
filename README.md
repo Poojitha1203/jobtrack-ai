@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 2 (design system, landing page, dashboard layout) complete.
+> **Status:** In development — Phase 3 (Supabase database, authentication, protected routes) complete.
 
 ## Features
 
@@ -41,14 +41,16 @@ jobtrack-ai/
 │   ├── public/
 │   └── src/
 │       ├── components/
-│       │   ├── ui/         # Design system: Button, Card, Badge, EmptyState, Skeleton
+│       │   ├── auth/       # ProtectedRoute, GuestRoute
+│       │   ├── ui/         # Design system: Button, Card, Badge, TextField, Alert, ...
 │       │   ├── layout/     # Sidebar, Topbar, Logo, PageHeader
 │       │   └── dashboard/  # Dashboard widgets (stats, charts, lists)
 │       ├── config/         # Navigation (single source for sidebar + routes)
+│       ├── context/        # AuthProvider (session + profile)
 │       ├── data/           # Temporary sample data (replaced in Phase 4)
 │       ├── hooks/          # Reusable React hooks
-│       ├── layouts/        # AppLayout (sidebar + top bar + page)
-│       ├── lib/            # Helpers: dates, metrics, styles
+│       ├── layouts/        # AppLayout, AuthLayout
+│       ├── lib/            # Supabase client, helpers: dates, metrics, validation
 │       ├── pages/          # Route-level pages
 │       ├── services/       # API client (fetch wrapper)
 │       ├── types/          # Shared TypeScript types
@@ -60,12 +62,15 @@ jobtrack-ai/
 │   └── src/
 │       ├── config/         # Environment variables
 │       ├── controllers/    # Request handlers
-│       ├── middleware/     # 404 + error handling (auth later)
+│       ├── lib/            # Supabase client factory
+│       ├── middleware/     # requireAuth, validateBody, 404 + error handling
 │       ├── routes/         # Route definitions
-│       ├── types/          # Response types
+│       ├── types/          # Response types, Express request typing
 │       ├── utils/
+│       ├── validators/     # zod request schemas
 │       ├── app.ts          # Express app (no listen)
 │       └── server.ts       # Starts the HTTP server
+├── supabase/migrations/    # SQL schema, RLS policies, triggers
 ├── .github/                # Pull request template
 └── package.json            # npm workspaces + root scripts
 ```
@@ -87,6 +92,22 @@ npm install                                  # installs client + server dependen
 cp server/.env.example server/.env
 cp client/.env.example client/.env
 ```
+
+### Supabase setup (free plan)
+
+1. Create a free account at [supabase.com](https://supabase.com) and a **New project** (pick the region closest to you, save the database password somewhere safe).
+2. **SQL Editor → New query** → run each file in [`supabase/migrations/`](supabase/migrations/) **in filename order** (paste the whole file → **Run**, then the next file):
+   1. `20261123000000_initial_schema.sql` — tables, constraints, triggers, Row Level Security
+   2. `20261123000100_data_api_grants.sql` — explicit API privileges (required on Supabase projects created after May 2026, which no longer expose new tables automatically)
+3. **Authentication → Sign In / Providers → Email**: for local development turn **Confirm email** off (see the email note below).
+4. **Authentication → URL Configuration**: set **Site URL** to `http://localhost:5173` and add `http://localhost:5173/**` under **Redirect URLs**.
+5. **Project Settings → API Keys**: copy the **Project URL** and the **publishable key** (`sb_publishable_…`) into both `client/.env` and `server/.env`.
+
+> **Free-tier notes:** 500 MB database, 1 GB file storage, 50,000 monthly active users, 2 active projects. Projects **pause after 1 week of inactivity** (resume from the dashboard; data is kept).
+> Supabase's built-in email sends only **to your project team's addresses** and only about **2 emails per hour**. That's enough to test password reset with your own email. For real users, connect a free SMTP provider in **Authentication → Emails → SMTP Settings**.
+
+To make yourself an admin (needed in Phase 11), run in the SQL Editor:
+`update public.profiles set role = 'admin' where email = 'you@example.com';`
 
 ### Run locally
 
@@ -112,7 +133,7 @@ In development, Vite proxies `/api/*` requests to the Express server, so the fro
 ## Environment variables
 
 See [`client/.env.example`](client/.env.example) and [`server/.env.example`](server/.env.example).
-Real `.env` files are git-ignored and must never be committed. Only `VITE_`-prefixed variables reach the browser, so secrets (Supabase service-role key, Razorpay secret) live only in `server/.env`.
+Real `.env` files are git-ignored and must never be committed. Only `VITE_`-prefixed variables reach the browser, so secrets (Supabase secret key, Razorpay secret) live only in `server/.env`.
 
 ## Screenshots
 

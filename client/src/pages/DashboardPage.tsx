@@ -11,10 +11,17 @@ import { buttonClasses } from '../lib/buttonStyles.ts';
 import { appliedThisWeek, computeMetrics, weeklyActivity } from '../lib/metrics.ts';
 import { formatLongDate, greeting } from '../lib/date.ts';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.ts';
-import { SAMPLE_WEEKLY_GOAL, sampleApplications, sampleInterviews } from '../data/sampleData.ts';
+import { useAuth } from '../hooks/useAuth.ts';
+import { getDisplayName } from '../lib/user.ts';
+import { sampleApplications, sampleInterviews } from '../data/sampleData.ts';
+
+const DEFAULT_WEEKLY_GOAL = 5;
 
 export function DashboardPage() {
   useDocumentTitle('Dashboard');
+  const { profile, user } = useAuth();
+  const firstName = getDisplayName(profile, user).split(/[\s@]/)[0];
+  const weeklyGoal = profile?.weeklyGoal ?? DEFAULT_WEEKLY_GOAL;
 
   // Phase 4 swaps these sample arrays for data loaded from the API.
   const applications = sampleApplications;
@@ -37,7 +44,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`${greeting(now)} 👋`}
+        title={`${greeting(now)}, ${firstName} 👋`}
         description={`${formatLongDate(now)} · Here's how your job search is going.`}
         actions={
           <Link to="/applications" className={buttonClasses()}>
@@ -48,8 +55,8 @@ export function DashboardPage() {
 
       <p className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
         <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        You're viewing sample data. Your real applications will appear here once accounts and the
-        database are connected.
+        The applications and interviews below are sample data. Your own will appear here once
+        application tracking is added. Your weekly goal is real — change it in Settings.
       </p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -86,7 +93,7 @@ export function DashboardPage() {
         <div className="lg:col-span-2">
           <ActivityChart weeks={weeks} />
         </div>
-        <WeeklyGoal sent={sentThisWeek} goal={SAMPLE_WEEKLY_GOAL} />
+        <WeeklyGoal sent={sentThisWeek} goal={weeklyGoal} />
       </div>
 
       <PipelineCard metrics={metrics} />

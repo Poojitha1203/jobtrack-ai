@@ -16,6 +16,7 @@ import { Badge } from '../components/ui/Badge.tsx';
 import { buttonClasses } from '../lib/buttonStyles.ts';
 import { cn } from '../lib/cn.ts';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.ts';
+import { useAuth } from '../hooks/useAuth.ts';
 
 const REPO_URL = 'https://github.com/Poojitha1203/jobtrack-ai';
 
@@ -108,6 +109,7 @@ function HeroPreview() {
 
 export function LandingPage() {
   useDocumentTitle();
+  const { session } = useAuth();
 
   return (
     <div className="min-h-screen bg-white">
@@ -123,12 +125,20 @@ export function LandingPage() {
             <a href="#pricing" className="hover:text-slate-900">Pricing</a>
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <Link to="/login" className={buttonClasses({ variant: 'ghost', size: 'sm' })}>
-              Log in
-            </Link>
-            <Link to="/register" className={buttonClasses({ size: 'sm' })}>
-              Get started
-            </Link>
+            {session ? (
+              <Link to="/dashboard" className={buttonClasses({ size: 'sm' })}>
+                Go to dashboard
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className={buttonClasses({ variant: 'ghost', size: 'sm' })}>
+                  Log in
+                </Link>
+                <Link to="/register" className={buttonClasses({ size: 'sm' })}>
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -151,8 +161,8 @@ export function LandingPage() {
                 <Link to="/register" className={buttonClasses({ size: 'lg' })}>
                   Start tracking free <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
-                <Link to="/dashboard" className={buttonClasses({ variant: 'secondary', size: 'lg' })}>
-                  View demo dashboard
+                <Link to="/login" className={buttonClasses({ variant: 'secondary', size: 'lg' })}>
+                  Log in
                 </Link>
               </div>
               <p className="mt-6 flex items-center gap-2 text-sm text-slate-500">

@@ -48,5 +48,3 @@ export const sampleInterviews: Interview[] = [
   { id: 'i2', applicationId: 'a7', company: 'Quantive', jobTitle: 'Frontend Engineer', round: 'HR screening', type: 'phone', scheduledAt: at(3, 15, 30) },
   { id: 'i3', applicationId: 'a15', company: 'Vertex Cloud', jobTitle: 'Software Engineer', round: 'System design', type: 'onsite', scheduledAt: at(6, 10) },
 ];
-
-export const SAMPLE_WEEKLY_GOAL = 5;
