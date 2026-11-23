@@ -29,6 +29,8 @@ export interface Application {
   /** YYYY-MM-DD */
   appliedAt: string | null;
   notes: string | null;
+  /** Card order inside its Kanban column. */
+  position: number;
   createdAt: string;
   updatedAt: string;
 }

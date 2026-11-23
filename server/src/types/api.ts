@@ -49,6 +49,7 @@ export interface ApplicationResponse {
   status: ApplicationStatus;
   appliedAt: string | null;
   notes: string | null;
+  position: number;
   createdAt: string;
   updatedAt: string;
 }

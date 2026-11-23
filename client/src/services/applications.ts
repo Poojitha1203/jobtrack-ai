@@ -1,6 +1,6 @@
 import { apiRequest } from './api.ts';
 import type { PaginatedResponse } from '../types/api.ts';
-import type { Application, ApplicationInput, ApplicationQuery } from '../types/application.ts';
+import type { Application, ApplicationInput, ApplicationQuery, ApplicationStatus } from '../types/application.ts';
 
 function toSearchParams(query: Partial<ApplicationQuery>): string {
   const params = new URLSearchParams();
@@ -30,3 +30,16 @@ export const updateApplication = (id: string, changes: Partial<ApplicationInput>
 
 export const deleteApplication = (id: string) =>
   apiRequest<void>(`/applications/${encodeURIComponent(id)}`, { method: 'DELETE' });
+
+export interface MoveApplicationInput {
+  status: ApplicationStatus;
+  /** Every card id in the destination column, in their new order. */
+  orderedIds: string[];
+  appliedAt?: string | null;
+}
+
+export const moveApplication = (id: string, input: MoveApplicationInput) =>
+  apiRequest<void>(`/applications/${encodeURIComponent(id)}/move`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });

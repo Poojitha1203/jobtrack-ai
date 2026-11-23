@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 4 (job application management: CRUD, search, filters, sorting) complete.
+> **Status:** In development — Phase 5 (drag-and-drop Kanban board) complete.
 
 ## Features
 
@@ -100,6 +100,7 @@ cp client/.env.example client/.env
    1. `20261123000000_initial_schema.sql` — tables, constraints, triggers, Row Level Security
    2. `20261123000100_data_api_grants.sql` — explicit API privileges (required on Supabase projects created after May 2026, which no longer expose new tables automatically)
    3. `20261124000000_application_list_view.sql` — applications joined with company names, for search and sorting
+   4. `20261125000000_move_application_function.sql` — saves Kanban moves (status + card order) in one transaction
 3. **Authentication → Sign In / Providers → Email**: for local development turn **Confirm email** off (see the email note below).
 4. **Authentication → URL Configuration**: set **Site URL** to `http://localhost:5173` and add `http://localhost:5173/**` under **Redirect URLs**.
 5. **Project Settings → API Keys**: copy the **Project URL** and the **publishable key** (`sb_publishable_…`) into both `client/.env` and `server/.env`.
@@ -143,6 +144,7 @@ All endpoints except `/api/health` require `Authorization: Bearer <Supabase acce
 | GET | `/api/applications/summary` | All applications (for dashboard statistics) |
 | POST | `/api/applications` | Create (company is found or created by name) |
 | GET / PATCH / DELETE | `/api/applications/:id` | Read, update, delete one application |
+| PATCH | `/api/applications/:id/move` | Kanban move: `{ status, orderedIds, appliedAt? }` |
 | GET | `/api/companies` | Company names for dropdowns |
 
 ## Environment variables

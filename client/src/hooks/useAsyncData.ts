@@ -48,6 +48,8 @@ export function useAsyncData<T>(load: () => Promise<T>, key: string) {
 
   return {
     data: result?.data,
+    /** Changes every time new data arrives — useful as a React `key` to reset child state. */
+    dataKey: result?.key,
     error: result?.key === requestKey ? result.error : undefined,
     loading: result?.key !== requestKey,
     reload,

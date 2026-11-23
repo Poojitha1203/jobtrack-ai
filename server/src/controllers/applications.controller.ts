@@ -5,8 +5,10 @@ import { parseId, parseQuery } from '../utils/parse.js';
 import { listApplicationsQuerySchema } from '../validators/application.schema.js';
 import type {
   CreateApplicationInput,
+  MoveApplicationInput,
   UpdateApplicationInput,
 } from '../validators/application.schema.js';
+import { HttpError } from '../utils/HttpError.js';
 import type { ApplicationResponse, PaginatedResponse } from '../types/api.js';
 
 export const listApplications = async (req: Request, res: Response<PaginatedResponse<ApplicationResponse>>) => {
@@ -40,5 +42,16 @@ export const updateApplication = async (req: Request, res: Response<ApplicationR
 export const deleteApplication = async (req: Request, res: Response) => {
   const { supabase } = getAuth(req);
   await service.deleteApplication(supabase, parseId(req.params.id, 'Application'));
+  res.status(204).end();
+};
+
+export const moveApplication = async (req: Request, res: Response) => {
+  const { supabase } = getAuth(req);
+  const id = parseId(req.params.id, 'Application');
+  const input = req.body as MoveApplicationInput;
+  if (!input.orderedIds.includes(id)) {
+    throw new HttpError(400, 'orderedIds must include the application being moved');
+  }
+  await service.moveApplication(supabase, id, input);
   res.status(204).end();
 };
