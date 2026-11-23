@@ -19,16 +19,18 @@ import {
 } from '../../lib/applicationForm.ts';
 import { todayDateOnly } from '../../lib/format.ts';
 import { APPLICATION_STATUSES, JOB_TYPES, WORK_MODES, type CompanySummary } from '../../types/application.ts';
+import type { Resume } from '../../types/resume.ts';
 
 interface ApplicationFormProps {
   initialValues: ApplicationFormValues;
   companies: CompanySummary[];
+  resumes: Resume[];
   submitLabel: string;
   onSubmit: (values: ApplicationFormValues) => Promise<ApplicationFormErrors | void>;
   onCancel: () => void;
 }
 
-export function ApplicationForm({ initialValues, companies, submitLabel, onSubmit, onCancel }: ApplicationFormProps) {
+export function ApplicationForm({ initialValues, companies, resumes, submitLabel, onSubmit, onCancel }: ApplicationFormProps) {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<ApplicationFormErrors>({});
   const [saving, setSaving] = useState(false);
@@ -138,6 +140,19 @@ export function ApplicationForm({ initialValues, companies, submitLabel, onSubmi
             className="sm:col-span-2"
             {...bind('jobUrl')}
           />
+          <SelectField
+            label="Resume used"
+            className="sm:col-span-3"
+            hint={resumes.length === 0 ? 'Upload resumes on the Resumes page to link them here.' : undefined}
+            {...bind('resumeId')}
+          >
+            <option value="">None</option>
+            {resumes.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.title}{r.isDefault ? ' (default)' : ''}
+              </option>
+            ))}
+          </SelectField>
         </fieldset>
 
         <fieldset className="space-y-4 border-t border-slate-100 pt-6">

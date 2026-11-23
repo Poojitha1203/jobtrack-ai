@@ -18,6 +18,7 @@ export interface ApplicationFormValues {
   status: ApplicationStatus;
   appliedAt: string;
   notes: string;
+  resumeId: string;
 }
 
 export type ApplicationFormErrors = Partial<Record<keyof ApplicationFormValues | '_form', string>>;
@@ -38,6 +39,7 @@ export function toFormValues(app?: Application): ApplicationFormValues {
     status: app?.status ?? 'applied',
     appliedAt: app ? (app.appliedAt ?? '') : todayDateOnly(),
     notes: app?.notes ?? '',
+    resumeId: app?.resumeId ?? '',
   };
 }
 
@@ -60,6 +62,7 @@ export function toApplicationInput(values: ApplicationFormValues): ApplicationIn
     status: values.status,
     appliedAt: values.appliedAt || null,
     notes: textOrNull(values.notes),
+    resumeId: values.resumeId || null,
   };
 }
 
