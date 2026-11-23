@@ -7,6 +7,7 @@ import type { ApplicationResponse, PaginatedResponse } from '../types/api.js';
 import type {
   CreateApplicationInput,
   ListApplicationsQuery,
+  MoveApplicationInput,
   UpdateApplicationInput,
 } from '../validators/application.schema.js';
 
@@ -28,13 +29,14 @@ interface ApplicationRow {
   status: ApplicationStatus;
   applied_at: string | null;
   notes: string | null;
+  position: number;
   created_at: string;
   updated_at: string;
 }
 
 const BASE_COLUMNS =
   'id, company_id, job_title, location, job_type, work_mode, salary_min, salary_max, salary_currency, ' +
-  'job_url, source, status, applied_at, notes, created_at, updated_at';
+  'job_url, source, status, applied_at, notes, position, created_at, updated_at';
 
 const LIST_COLUMNS = `${BASE_COLUMNS}, company_name`;
 const DETAIL_COLUMNS = `${BASE_COLUMNS}, job_description, company:companies(id, name)`;
@@ -58,6 +60,7 @@ function toResponse(row: ApplicationRow): ApplicationResponse {
     status: row.status,
     appliedAt: row.applied_at,
     notes: row.notes,
+    position: row.position,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -191,4 +194,15 @@ export async function deleteApplication(supabase: SupabaseClient, id: string): P
   const { data, error } = await supabase.from('applications').delete().eq('id', id).select('id');
   if (error) throw new Error(`Failed to delete application: ${error.message}`);
   if (data.length === 0) throw new HttpError(404, 'Application not found');
+}
+
+export async function moveApplication(supabase: SupabaseClient, id: string, input: MoveApplicationInput): Promise<void> {
+  const { error } = await supabase.rpc('move_application', {
+    p_application_id: id,
+    p_status: input.status,
+    p_ordered_ids: input.orderedIds,
+    p_applied_at: input.appliedAt ?? null,
+  });
+  if (error?.code === 'P0002') throw new HttpError(404, 'Application not found');
+  if (error) throw new Error(`Failed to move application: ${error.message}`);
 }

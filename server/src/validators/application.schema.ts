@@ -82,3 +82,17 @@ export const listApplicationsQuerySchema = z.object({
 export type ListApplicationsQuery = z.infer<typeof listApplicationsQuerySchema>;
 
 export const idParamSchema = z.uuid();
+
+export const moveApplicationSchema = z
+  .object({
+    status: z.enum(APPLICATION_STATUSES),
+    orderedIds: z.array(z.uuid()).min(1).max(500),
+    appliedAt: z.iso.date().nullable().optional(),
+  })
+  .strict()
+  .refine((data) => new Set(data.orderedIds).size === data.orderedIds.length, {
+    message: 'orderedIds must not contain duplicates',
+    path: ['orderedIds'],
+  });
+
+export type MoveApplicationInput = z.infer<typeof moveApplicationSchema>;
