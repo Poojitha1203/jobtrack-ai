@@ -3,6 +3,7 @@ import { Menu } from 'lucide-react';
 import { findNavItem } from '../../config/navigation.ts';
 import { buttonClasses } from '../../lib/buttonStyles.ts';
 import { UserMenu } from './UserMenu.tsx';
+import { NotificationsMenu } from './NotificationsMenu.tsx';
 
 interface TopbarProps {
   menuOpen: boolean;
@@ -28,7 +29,8 @@ export function Topbar({ menuOpen, onMenuClick }: TopbarProps) {
 
       <p className="truncate text-sm font-medium text-slate-500">{current?.label ?? 'JobTrack AI'}</p>
 
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-2">
+        <NotificationsMenu />
         <UserMenu />
       </div>
     </header>

@@ -17,6 +17,7 @@ import { CompaniesPage } from './pages/CompaniesPage.tsx';
 import { CompanyDetailsPage } from './pages/CompanyDetailsPage.tsx';
 import { InterviewsPage } from './pages/InterviewsPage.tsx';
 import { CalendarPage } from './pages/CalendarPage.tsx';
+import { RemindersPage } from './pages/RemindersPage.tsx';
 import { ComingSoonPage } from './pages/ComingSoonPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import { NAV_ITEMS } from './config/navigation.ts';
@@ -30,6 +31,7 @@ const BUILT_PAGES: Record<string, ReactNode> = {
   '/companies': <CompaniesPage />,
   '/interviews': <InterviewsPage />,
   '/calendar': <CalendarPage />,
+  '/reminders': <RemindersPage />,
 };
 
 export const router = createBrowserRouter([

@@ -1,5 +1,6 @@
 import {
   ChartColumn,
+  Bell,
   BriefcaseBusiness,
   Building2,
   CalendarDays,
@@ -49,6 +50,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: 'Companies', path: '/companies', icon: Building2, phase: 6, description: 'Keep company details, contacts and notes in one place.' },
       { label: 'Interviews', path: '/interviews', icon: MessagesSquare, phase: 6, description: 'Schedule rounds, store prep notes and record feedback.' },
       { label: 'Calendar', path: '/calendar', icon: CalendarDays, phase: 6, description: 'See interviews, follow-ups and deadlines by date.' },
+      { label: 'Reminders', path: '/reminders', icon: Bell, phase: 6, description: 'Follow-ups, deadlines and interview reminders.' },
     ],
   },
   {

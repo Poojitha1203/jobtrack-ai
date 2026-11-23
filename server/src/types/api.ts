@@ -1,5 +1,6 @@
 import type { ApplicationStatus, JobType, WorkMode } from '../constants/application.js';
 import type { InterviewResult, InterviewType } from '../constants/interview.js';
+import type { ReminderType } from '../validators/reminder.schema.js';
 
 export interface ApiErrorResponse {
   error: {
@@ -86,6 +87,22 @@ export interface InterviewResponse {
   preparationNotes: string | null;
   feedback: string | null;
   result: InterviewResult;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReminderResponse {
+  id: string;
+  type: ReminderType;
+  title: string;
+  notes: string | null;
+  remindAt: string;
+  isCompleted: boolean;
+  completedAt: string | null;
+  applicationId: string | null;
+  interviewId: string | null;
+  application: { id: string; jobTitle: string; company: CompanySummary } | null;
+  interview: { id: string; round: string; scheduledAt: string } | null;
   createdAt: string;
   updatedAt: string;
 }
