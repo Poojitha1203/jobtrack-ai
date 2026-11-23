@@ -1,0 +1,24 @@
+{
+  "name": "jobtrack-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Smart job application tracker and career management platform",
+  "license": "MIT",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently --names server,client --prefix-colors magenta,cyan --kill-others-on-fail \"npm run dev -w server\" \"npm run dev -w client\"",
+    "dev:client": "npm run dev -w client",
+    "dev:server": "npm run dev -w server",
+    "build": "npm run build -w client",
+    "lint": "npm run lint -w client"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
