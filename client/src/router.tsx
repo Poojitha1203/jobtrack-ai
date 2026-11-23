@@ -12,6 +12,7 @@ import { DashboardPage } from './pages/DashboardPage.tsx';
 import { SettingsPage } from './pages/SettingsPage.tsx';
 import { ApplicationsPage } from './pages/ApplicationsPage.tsx';
 import { ApplicationDetailsPage } from './pages/ApplicationDetailsPage.tsx';
+import { KanbanPage } from './pages/KanbanPage.tsx';
 import { ComingSoonPage } from './pages/ComingSoonPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import { NAV_ITEMS } from './config/navigation.ts';
@@ -21,6 +22,7 @@ const BUILT_PAGES: Record<string, ReactNode> = {
   '/dashboard': <DashboardPage />,
   '/settings': <SettingsPage />,
   '/applications': <ApplicationsPage />,
+  '/board': <KanbanPage />,
 };
 
 export const router = createBrowserRouter([
