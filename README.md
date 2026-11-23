@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 5 (drag-and-drop Kanban board) complete.
+> **Status:** In development — Phase 6 in progress (company management done; interviews, calendar and reminders next).
 
 ## Features
 
@@ -145,7 +145,8 @@ All endpoints except `/api/health` require `Authorization: Bearer <Supabase acce
 | POST | `/api/applications` | Create (company is found or created by name) |
 | GET / PATCH / DELETE | `/api/applications/:id` | Read, update, delete one application |
 | PATCH | `/api/applications/:id/move` | Kanban move: `{ status, orderedIds, appliedAt? }` |
-| GET | `/api/companies` | Company names for dropdowns |
+| GET / POST | `/api/companies` | List (with `search` and application counts) / create |
+| GET / PATCH / DELETE | `/api/companies/:id` | Read, update, delete (blocked while it has applications) |
 
 ## Environment variables
 
