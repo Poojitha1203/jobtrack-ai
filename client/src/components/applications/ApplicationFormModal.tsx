@@ -11,6 +11,7 @@ import {
   toApplicationInput,
   toFormValues,
   type ApplicationFormErrors,
+  type ApplicationFormValues,
 } from '../../lib/applicationForm.ts';
 import type { Application } from '../../types/application.ts';
 
@@ -18,6 +19,8 @@ interface ApplicationFormModalProps {
   open: boolean;
   /** Pass an application to edit it; leave empty to create a new one. */
   application?: Application;
+  /** Pre-filled values for a NEW application, e.g. { companyName } from a company page. */
+  defaults?: Partial<ApplicationFormValues>;
   onClose: () => void;
   onSaved: (application: Application, mode: 'created' | 'updated') => void;
 }
@@ -29,7 +32,7 @@ function toFormErrors(error: unknown): ApplicationFormErrors {
   return { _form: error instanceof Error ? error.message : 'Could not save the application' };
 }
 
-function FormBody({ application, onClose, onSaved }: Omit<ApplicationFormModalProps, 'open'>) {
+function FormBody({ application, defaults, onClose, onSaved }: Omit<ApplicationFormModalProps, 'open'>) {
   const companies = useAsyncData(listCompanies, 'companies');
   // List rows don't include the (long) job description, so load the full record before editing.
   const full = useAsyncData(
@@ -56,7 +59,7 @@ function FormBody({ application, onClose, onSaved }: Omit<ApplicationFormModalPr
   }
 
   const existing = full.data;
-  const initialValues = toFormValues(existing);
+  const initialValues = existing ? toFormValues(existing) : { ...toFormValues(), ...defaults };
 
   const handleSubmit = async (values: typeof initialValues) => {
     try {
@@ -86,7 +89,7 @@ function FormBody({ application, onClose, onSaved }: Omit<ApplicationFormModalPr
   );
 }
 
-export function ApplicationFormModal({ open, application, onClose, onSaved }: ApplicationFormModalProps) {
+export function ApplicationFormModal({ open, application, defaults, onClose, onSaved }: ApplicationFormModalProps) {
   return (
     <Modal
       open={open}
@@ -95,7 +98,7 @@ export function ApplicationFormModal({ open, application, onClose, onSaved }: Ap
       title={application ? 'Edit application' : 'Add application'}
       description={application ? `${application.jobTitle} at ${application.company.name}` : 'Track a job you applied to or want to apply to.'}
     >
-      <FormBody application={application} onClose={onClose} onSaved={onSaved} />
+      <FormBody application={application} defaults={defaults} onClose={onClose} onSaved={onSaved} />
     </Modal>
   );
 }

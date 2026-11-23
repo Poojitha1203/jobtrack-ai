@@ -13,6 +13,8 @@ import { SettingsPage } from './pages/SettingsPage.tsx';
 import { ApplicationsPage } from './pages/ApplicationsPage.tsx';
 import { ApplicationDetailsPage } from './pages/ApplicationDetailsPage.tsx';
 import { KanbanPage } from './pages/KanbanPage.tsx';
+import { CompaniesPage } from './pages/CompaniesPage.tsx';
+import { CompanyDetailsPage } from './pages/CompanyDetailsPage.tsx';
 import { ComingSoonPage } from './pages/ComingSoonPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import { NAV_ITEMS } from './config/navigation.ts';
@@ -23,6 +25,7 @@ const BUILT_PAGES: Record<string, ReactNode> = {
   '/settings': <SettingsPage />,
   '/applications': <ApplicationsPage />,
   '/board': <KanbanPage />,
+  '/companies': <CompaniesPage />,
 };
 
 export const router = createBrowserRouter([
@@ -54,6 +57,7 @@ export const router = createBrowserRouter([
             element: BUILT_PAGES[item.path] ?? <ComingSoonPage item={item} />,
           })),
           { path: '/applications/:id', element: <ApplicationDetailsPage /> },
+          { path: '/companies/:id', element: <CompanyDetailsPage /> },
         ],
       },
     ],

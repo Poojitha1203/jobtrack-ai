@@ -128,7 +128,10 @@ export function ApplicationDetailsPage() {
             <h1 className="text-2xl font-semibold tracking-tight break-words text-slate-900">{app.jobTitle}</h1>
             <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-600">
               <span className="inline-flex items-center gap-1.5">
-                <Building2 className="size-4 text-slate-400" aria-hidden="true" /> {app.company.name}
+                <Building2 className="size-4 text-slate-400" aria-hidden="true" />
+                <Link to={`/companies/${app.company.id}`} className="hover:text-brand-700 hover:underline">
+                  {app.company.name}
+                </Link>
               </span>
               {app.location && (
                 <span className="inline-flex items-center gap-1.5">
