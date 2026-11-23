@@ -96,7 +96,9 @@ cp client/.env.example client/.env
 ### Supabase setup (free plan)
 
 1. Create a free account at [supabase.com](https://supabase.com) and a **New project** (pick the region closest to you, save the database password somewhere safe).
-2. **SQL Editor → New query** → paste the contents of [`supabase/migrations/20261123000000_initial_schema.sql`](supabase/migrations/20261123000000_initial_schema.sql) → **Run**.
+2. **SQL Editor → New query** → run each file in [`supabase/migrations/`](supabase/migrations/) **in filename order** (paste the whole file → **Run**, then the next file):
+   1. `20261123000000_initial_schema.sql` — tables, constraints, triggers, Row Level Security
+   2. `20261123000100_data_api_grants.sql` — explicit API privileges (required on Supabase projects created after May 2026, which no longer expose new tables automatically)
 3. **Authentication → Sign In / Providers → Email**: for local development turn **Confirm email** off (see the email note below).
 4. **Authentication → URL Configuration**: set **Site URL** to `http://localhost:5173` and add `http://localhost:5173/**` under **Redirect URLs**.
 5. **Project Settings → API Keys**: copy the **Project URL** and the **publishable key** (`sb_publishable_…`) into both `client/.env` and `server/.env`.
