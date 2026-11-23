@@ -1,15 +1,50 @@
-// Domain types for interviews (expanded in Phase 6).
+import type { ApplicationStatus, CompanySummary } from './application.ts';
 
-export type InterviewType = 'phone' | 'video' | 'onsite';
+export const INTERVIEW_TYPES = ['phone', 'video', 'onsite'] as const;
+export const INTERVIEW_RESULTS = ['pending', 'passed', 'failed', 'cancelled'] as const;
+
+export type InterviewType = (typeof INTERVIEW_TYPES)[number];
+export type InterviewResult = (typeof INTERVIEW_RESULTS)[number];
 
 export interface Interview {
   id: string;
   applicationId: string;
-  company: string;
-  jobTitle: string;
-  /** e.g. "Technical round 1", "HR round" */
+  application: {
+    id: string;
+    jobTitle: string;
+    status: ApplicationStatus;
+    company: CompanySummary;
+  };
   round: string;
-  type: InterviewType;
-  /** ISO date-time string */
+  interviewType: InterviewType;
+  /** ISO date-time (UTC) */
   scheduledAt: string;
+  durationMinutes: number | null;
+  meetingLink: string | null;
+  preparationNotes: string | null;
+  feedback: string | null;
+  result: InterviewResult;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InterviewInput {
+  applicationId: string;
+  round: string;
+  interviewType: InterviewType;
+  scheduledAt: string;
+  durationMinutes: number | null;
+  meetingLink: string | null;
+  preparationNotes: string | null;
+  feedback: string | null;
+  result: InterviewResult;
+}
+
+export interface InterviewQuery {
+  from?: string;
+  to?: string;
+  applicationId?: string;
+  result?: InterviewResult;
+  order?: 'asc' | 'desc';
+  limit?: number;
 }
