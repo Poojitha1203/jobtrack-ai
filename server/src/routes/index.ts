@@ -1,15 +1,16 @@
 import { Router } from 'express';
 import healthRoutes from './health.routes.js';
 import profileRoutes from './profile.routes.js';
+import applicationRoutes from './applications.routes.js';
+import companyRoutes from './companies.routes.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 
-// Root API router. Each feature adds its own router here.
 const router = Router();
 
-// Public
 router.use('/health', healthRoutes);
 
-// Signed-in users only
 router.use('/profile', requireAuth, profileRoutes);
+router.use('/applications', requireAuth, applicationRoutes);
+router.use('/companies', requireAuth, companyRoutes);
 
 export default router;

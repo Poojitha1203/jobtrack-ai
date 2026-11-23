@@ -10,6 +10,8 @@ import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage.tsx';
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage.tsx';
 import { DashboardPage } from './pages/DashboardPage.tsx';
 import { SettingsPage } from './pages/SettingsPage.tsx';
+import { ApplicationsPage } from './pages/ApplicationsPage.tsx';
+import { ApplicationDetailsPage } from './pages/ApplicationDetailsPage.tsx';
 import { ComingSoonPage } from './pages/ComingSoonPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import { NAV_ITEMS } from './config/navigation.ts';
@@ -18,6 +20,7 @@ import { NAV_ITEMS } from './config/navigation.ts';
 const BUILT_PAGES: Record<string, ReactNode> = {
   '/dashboard': <DashboardPage />,
   '/settings': <SettingsPage />,
+  '/applications': <ApplicationsPage />,
 };
 
 export const router = createBrowserRouter([
@@ -43,10 +46,13 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppLayout />,
-        children: NAV_ITEMS.map((item) => ({
-          path: item.path,
-          element: BUILT_PAGES[item.path] ?? <ComingSoonPage item={item} />,
-        })),
+        children: [
+          ...NAV_ITEMS.map((item) => ({
+            path: item.path,
+            element: BUILT_PAGES[item.path] ?? <ComingSoonPage item={item} />,
+          })),
+          { path: '/applications/:id', element: <ApplicationDetailsPage /> },
+        ],
       },
     ],
   },

@@ -1,10 +1,8 @@
-// Shapes of JSON responses sent by the API.
-// The client keeps a matching copy in client/src/types/api.ts.
+import type { ApplicationStatus, JobType, WorkMode } from '../constants/application.js';
 
 export interface ApiErrorResponse {
   error: {
     message: string;
-    /** Field-level validation messages, e.g. { fullName: ['Name is required'] } */
     details?: Record<string, string[]>;
   };
 }
@@ -28,4 +26,36 @@ export interface ProfileResponse {
   weeklyGoal: number;
   role: UserRole;
   createdAt: string;
+}
+
+export interface CompanySummary {
+  id: string;
+  name: string;
+}
+
+export interface ApplicationResponse {
+  id: string;
+  jobTitle: string;
+  company: CompanySummary;
+  location: string | null;
+  jobType: JobType | null;
+  workMode: WorkMode | null;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  salaryCurrency: string;
+  jobDescription?: string | null;
+  jobUrl: string | null;
+  source: string | null;
+  status: ApplicationStatus;
+  appliedAt: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
