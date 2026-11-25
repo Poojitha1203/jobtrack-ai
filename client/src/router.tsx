@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { AppLayout } from './layouts/AppLayout.tsx';
 import { ProtectedRoute } from './components/auth/ProtectedRoute.tsx';
@@ -42,6 +42,11 @@ const BUILT_PAGES: Record<string, ReactNode> = {
   '/interview-prep': <InterviewPrepPage />,
 };
 
+// Pages with heavy libraries (e.g. Recharts) are downloaded only when first opened.
+const LAZY_PAGES: Record<string, () => Promise<{ Component: ComponentType }>> = {
+  '/analytics': () => import('./pages/AnalyticsPage.tsx').then((m) => ({ Component: m.AnalyticsPage })),
+};
+
 export const router = createBrowserRouter([
   // Public
   { path: '/', element: <LandingPage /> },
@@ -66,10 +71,11 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          ...NAV_ITEMS.map((item) => ({
+          ...NAV_ITEMS.filter((item) => !LAZY_PAGES[item.path]).map((item) => ({
             path: item.path,
             element: BUILT_PAGES[item.path] ?? <ComingSoonPage item={item} />,
           })),
+          ...Object.entries(LAZY_PAGES).map(([path, lazy]) => ({ path, lazy })),
           { path: '/applications/:id', element: <ApplicationDetailsPage /> },
           { path: '/companies/:id', element: <CompanyDetailsPage /> },
         ],
