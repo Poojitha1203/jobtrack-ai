@@ -3,6 +3,8 @@ import type { InterviewResult, InterviewType } from '../constants/interview.js';
 import type { ReminderType } from '../validators/reminder.schema.js';
 import type { MatchResult } from '../lib/matching/analyzer.js';
 import type { SkillGapResult, SkillLevel } from '../lib/matching/skillGap.js';
+import type { PracticeStatus, QuestionCategory, QuestionDifficulty } from '../constants/interviewPrep.js';
+import type { CategoryRecommendation } from '../lib/interviewPrep/recommend.js';
 
 export interface ApiErrorResponse {
   error: {
@@ -148,6 +150,34 @@ export interface UserSkillResponse {
 
 export interface SkillGapResponse extends SkillGapResult {
   resumeTitle: string | null;
+}
+
+export interface InterviewQuestionResponse {
+  id: string;
+  category: QuestionCategory;
+  difficulty: QuestionDifficulty;
+  question: string;
+  suggestedAnswer: string;
+  tags: string[];
+  status: PracticeStatus;
+  notes: string | null;
+  lastPracticedAt: string | null;
+}
+
+export interface QuestionListResponse {
+  items: InterviewQuestionResponse[];
+  stats: {
+    total: number;
+    confident: number;
+    practicing: number;
+    notStarted: number;
+    byCategory: { category: QuestionCategory; total: number; confident: number; practicing: number }[];
+  };
+}
+
+export interface PrepRecommendationsResponse {
+  context: { jobTitle: string; company: string | null } | null;
+  recommendations: CategoryRecommendation[];
 }
 
 export interface PaginatedResponse<T> {
