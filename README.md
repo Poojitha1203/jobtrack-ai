@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 7 (resumes, job match analyzer, skill gap analyzer) complete.
+> **Status:** In development — Phase 8 (interview preparation) complete.
 
 ## Features
 
@@ -103,6 +103,7 @@ cp client/.env.example client/.env
    4. `20261125000000_move_application_function.sql` — saves Kanban moves (status + card order) in one transaction
    5. `20261126000000_resume_storage.sql` — private `resumes` storage bucket (PDF, 5 MB max) with per-user folder policies
    6. `20261127000000_seed_skills.sql` — catalog of 123 skills (with aliases) used by the job match analyzer
+   7. `20261128000000_seed_interview_questions.sql` — 61 interview questions with suggested answers across 10 categories
 3. **Authentication → Sign In / Providers → Email**: for local development turn **Confirm email** off (see the email note below).
 4. **Authentication → URL Configuration**: set **Site URL** to `http://localhost:5173` and add `http://localhost:5173/**` under **Redirect URLs**.
 5. **Project Settings → API Keys**: copy the **Project URL** and the **publishable key** (`sb_publishable_…`) into both `client/.env` and `server/.env`.
@@ -162,6 +163,9 @@ All endpoints except `/api/health` require `Authorization: Bearer <Supabase acce
 | GET | `/api/skills/mine` | Your saved skills (level, progress, learning goal) |
 | PUT / DELETE | `/api/skills/mine/:skillId` | Add or update / remove one of your skills |
 | GET | `/api/skills/gap` | Skill demand across your saved job descriptions and your learning priorities |
+| GET | `/api/interview-prep/questions` | Question bank with your progress (`categories`, `difficulty`, `status`, `search`) |
+| GET | `/api/interview-prep/recommendations` | Question categories for a job (`applicationId`) or your skills |
+| PUT | `/api/interview-prep/progress/:questionId` | Save practice status and notes |
 
 ## How the job match score works
 
