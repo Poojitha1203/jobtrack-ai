@@ -1,6 +1,7 @@
 import type { ApplicationStatus, JobType, WorkMode } from '../constants/application.js';
 import type { InterviewResult, InterviewType } from '../constants/interview.js';
 import type { ReminderType } from '../validators/reminder.schema.js';
+import type { MatchResult } from '../lib/matching/analyzer.js';
 
 export interface ApiErrorResponse {
   error: {
@@ -121,6 +122,11 @@ export interface ResumeResponse {
   applicationCount: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface JobMatchResponse extends MatchResult {
+  resume: { id: string; title: string; hasText: boolean } | null;
+  catalogSize: number;
 }
 
 export interface PaginatedResponse<T> {

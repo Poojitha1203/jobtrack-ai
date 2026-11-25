@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { ArrowLeft, BellPlus, Building2, CalendarPlus, ExternalLink, FileSearch, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, BellPlus, Building2, CalendarPlus, ExternalLink, FileSearch, MapPin, Pencil, Target, Trash2 } from 'lucide-react';
 import { Card, CardHeader } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
 import { Alert } from '../components/ui/Alert.tsx';
@@ -165,6 +165,9 @@ export function ApplicationDetailsPage() {
                 <option key={s} value={s}>{STATUS_META[s].label}</option>
               ))}
             </SelectField>
+            <Link to={`/job-match?applicationId=${app.id}`} className={buttonClasses({ variant: 'secondary' })}>
+              <Target className="size-4" aria-hidden="true" /> Check match
+            </Link>
             <Button variant="secondary" onClick={() => reminderDialogs.openCreate(followUpDefaults(app.id, app.company.name))}>
               <BellPlus className="size-4" aria-hidden="true" /> Remind me
             </Button>
