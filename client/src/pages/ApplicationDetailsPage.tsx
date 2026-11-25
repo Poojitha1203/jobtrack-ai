@@ -187,9 +187,14 @@ export function ApplicationDetailsPage() {
             <CardHeader
               title="Interviews"
               action={
-                <Button size="sm" variant="secondary" onClick={() => interviewDialogs.openCreate({ applicationId: app.id })}>
-                  <CalendarPlus className="size-4" aria-hidden="true" /> Schedule
-                </Button>
+                <div className="flex gap-2">
+                  <Link to={`/interview-prep?applicationId=${app.id}`} className={buttonClasses({ size: 'sm', variant: 'ghost' })}>
+                    Prepare
+                  </Link>
+                  <Button size="sm" variant="secondary" onClick={() => interviewDialogs.openCreate({ applicationId: app.id })}>
+                    <CalendarPlus className="size-4" aria-hidden="true" /> Schedule
+                  </Button>
+                </div>
               }
             />
             <div className="p-5">

@@ -21,6 +21,7 @@ import { RemindersPage } from './pages/RemindersPage.tsx';
 import { ResumesPage } from './pages/ResumesPage.tsx';
 import { JobMatchPage } from './pages/JobMatchPage.tsx';
 import { SkillGapPage } from './pages/SkillGapPage.tsx';
+import { InterviewPrepPage } from './pages/InterviewPrepPage.tsx';
 import { ComingSoonPage } from './pages/ComingSoonPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import { NAV_ITEMS } from './config/navigation.ts';
@@ -38,6 +39,7 @@ const BUILT_PAGES: Record<string, ReactNode> = {
   '/resumes': <ResumesPage />,
   '/job-match': <JobMatchPage />,
   '/skill-gap': <SkillGapPage />,
+  '/interview-prep': <InterviewPrepPage />,
 };
 
 export const router = createBrowserRouter([
