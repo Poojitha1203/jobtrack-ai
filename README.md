@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 8 (interview preparation) complete.
+> **Status:** In development — Phase 9 (analytics) complete.
 
 ## Features
 
@@ -25,7 +25,7 @@ Planned for v1.0.0:
 
 | Layer      | Technology                                                |
 | ---------- | --------------------------------------------------------- |
-| Frontend   | React 19, Vite, TypeScript, Tailwind CSS v4, React Router 7, Lucide icons |
+| Frontend   | React 19, Vite, TypeScript, Tailwind CSS v4, React Router 7, Recharts, Lucide icons |
 | Backend    | Node.js, Express 5, TypeScript                            |
 | Database   | Supabase PostgreSQL with Row Level Security               |
 | Auth       | Supabase Auth                                             |
@@ -166,6 +166,7 @@ All endpoints except `/api/health` require `Authorization: Bearer <Supabase acce
 | GET | `/api/interview-prep/questions` | Question bank with your progress (`categories`, `difficulty`, `status`, `search`) |
 | GET | `/api/interview-prep/recommendations` | Question categories for a job (`applicationId`) or your skills |
 | PUT | `/api/interview-prep/progress/:questionId` | Save practice status and notes |
+| GET | `/api/analytics?months=3\|6\|12\|0` | Rates, monthly trends, funnel, status, interviews by company, top skills, source effectiveness (`0` = all time) |
 
 ## How the job match score works
 
