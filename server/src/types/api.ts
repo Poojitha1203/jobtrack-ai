@@ -2,6 +2,7 @@ import type { ApplicationStatus, JobType, WorkMode } from '../constants/applicat
 import type { InterviewResult, InterviewType } from '../constants/interview.js';
 import type { ReminderType } from '../validators/reminder.schema.js';
 import type { MatchResult } from '../lib/matching/analyzer.js';
+import type { SkillGapResult, SkillLevel } from '../lib/matching/skillGap.js';
 
 export interface ApiErrorResponse {
   error: {
@@ -127,6 +128,26 @@ export interface ResumeResponse {
 export interface JobMatchResponse extends MatchResult {
   resume: { id: string; title: string; hasText: boolean } | null;
   catalogSize: number;
+}
+
+export interface CatalogSkillResponse {
+  id: string;
+  name: string;
+  category: string;
+}
+
+export interface UserSkillResponse {
+  skillId: string;
+  name: string;
+  category: string;
+  level: SkillLevel;
+  progress: number;
+  isLearningGoal: boolean;
+  updatedAt: string;
+}
+
+export interface SkillGapResponse extends SkillGapResult {
+  resumeTitle: string | null;
 }
 
 export interface PaginatedResponse<T> {
