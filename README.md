@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 7 in progress (resume management and job match analyzer done; skill gap analyzer next).
+> **Status:** In development — Phase 7 (resumes, job match analyzer, skill gap analyzer) complete.
 
 ## Features
 
@@ -158,6 +158,10 @@ All endpoints except `/api/health` require `Authorization: Bearer <Supabase acce
 | GET / POST | `/api/resumes` | List / register an uploaded PDF (file goes directly to Supabase Storage) |
 | PATCH / DELETE | `/api/resumes/:id` | Rename, set default, or delete (also removes the stored file) |
 | POST | `/api/job-match/analyze` | Rule-based match of a resume against a job description |
+| GET | `/api/skills` | Skill catalog |
+| GET | `/api/skills/mine` | Your saved skills (level, progress, learning goal) |
+| PUT / DELETE | `/api/skills/mine/:skillId` | Add or update / remove one of your skills |
+| GET | `/api/skills/gap` | Skill demand across your saved job descriptions and your learning priorities |
 
 ## How the job match score works
 
@@ -167,6 +171,10 @@ The match score is **approximate and rule-based — not an AI prediction**.
 2. Lines under headings like *Nice to have* or phrases like *is a plus* mark skills as **preferred**; others are **required**. *About us* and *Benefits* sections are ignored.
 3. Each skill gets a weight (required 3, preferred 1, +0.5 per extra mention, max +1).
 4. Score = weight of skills found in your resume or saved skills ÷ total weight × 100.
+
+### Skill gap priorities
+
+Every saved job description is scanned with the same engine. A skill you don't have yet is **high** priority when at least 40% of your jobs mention it or 3+ require it, **medium** at 20% or when at least one job requires it, otherwise **low**. Skills saved in *My skills* or found in your default resume count as "have".
 
 ## Environment variables
 

@@ -7,6 +7,7 @@ import interviewRoutes from './interviews.routes.js';
 import reminderRoutes from './reminders.routes.js';
 import resumeRoutes from './resumes.routes.js';
 import jobMatchRoutes from './jobMatch.routes.js';
+import skillRoutes from './skills.routes.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
@@ -20,5 +21,6 @@ router.use('/interviews', requireAuth, interviewRoutes);
 router.use('/reminders', requireAuth, reminderRoutes);
 router.use('/resumes', requireAuth, resumeRoutes);
 router.use('/job-match', requireAuth, jobMatchRoutes);
+router.use('/skills', requireAuth, skillRoutes);
 
 export default router;

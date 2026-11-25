@@ -49,32 +49,61 @@ const CONTEXT_CUE = /^(about (us|the company|the team|our team)|who we are|our c
 const REQUIRED_WEIGHT = 3;
 const PREFERRED_WEIGHT = 1;
 
-/**
- * Splits the description into lines and labels each one required/preferred.
- * A heading like "Nice to have:" switches every following line until a "Requirements" style heading;
- * an inline "Docker is a plus" only marks that one line.
- */
+
 type LineMode = Importance | 'context';
 
 function labelLines(jobDescription: string): { text: string; importance: LineMode }[] {
   let mode: LineMode = 'required';
-  return normalize(jobDescription)
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((text) => {
-      const isHeading = text.length <= 60 && (text.endsWith(':') || !/[.!?]$/.test(text));
-      if (CONTEXT_CUE.test(text)) {
-        if (isHeading) mode = 'context';
-        return { text, importance: 'context' as const };
-      }
-      if (PREFERRED_CUE.test(text)) {
-        if (isHeading) mode = 'preferred';
-        return { text, importance: 'preferred' as const };
-      }
-      if (isHeading && REQUIRED_CUE.test(text)) mode = 'required';
-      return { text, importance: mode };
-    });
+  const labelled: { text: string; importance: LineMode }[] = [];
+
+  for (const rawLine of normalize(jobDescription).split('\n')) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    const isHeading = line.length <= 60 && (line.endsWith(':') || !/[.!?]$/.test(line));
+
+    // "About us: ..." and "Benefits" lines are context — the whole line, every sentence in it.
+    if (CONTEXT_CUE.test(line)) {
+      if (isHeading) mode = 'context';
+      labelled.push({ text: line, importance: 'context' });
+      continue;
+    }
+    if (isHeading && PREFERRED_CUE.test(line)) {
+      mode = 'preferred';
+      labelled.push({ text: line, importance: 'preferred' });
+      continue;
+    }
+    if (isHeading && REQUIRED_CUE.test(line)) mode = 'required';
+
+    // Sentence by sentence, so "Docker is a plus." doesn't downgrade the rest of its line.
+    for (const sentence of line.split(/(?<=[.!?])\s+(?=[a-z0-9])/)) {
+      const importance = mode !== 'context' && PREFERRED_CUE.test(sentence) ? 'preferred' : mode;
+      labelled.push({ text: sentence, importance });
+    }
+  }
+  return labelled;
+}
+
+export interface DetectedSkill {
+  skill: CompiledSkill;
+  required: number;
+  preferred: number;
+}
+
+
+export function detectJobSkills(jobDescription: string, catalog: CompiledSkill[]): DetectedSkill[] {
+  const lines = labelLines(jobDescription).filter((l) => l.importance !== 'context');
+  const found: DetectedSkill[] = [];
+  for (const skill of catalog) {
+    let required = 0;
+    let preferred = 0;
+    for (const line of lines) {
+      const count = countMatches(skill.pattern, line.text);
+      if (line.importance === 'required') required += count;
+      else preferred += count;
+    }
+    if (required + preferred > 0) found.push({ skill, required, preferred });
+  }
+  return found;
 }
 
 const weightOf = (hit: SkillHit) =>
@@ -122,15 +151,11 @@ export function analyzeMatch({ jobDescription, resumeText, profileSkills, catalo
     catalog.flatMap((s) => [s.name, ...s.aliases]).flatMap((term) => normalize(term).split(/[\s/]+/)),
   );
   const skillText = lines.filter((l) => l.importance !== 'context');
+  const detected = new Map(detectJobSkills(jobDescription, catalog).map((d) => [d.skill.id, d]));
 
   for (const skill of catalog) {
-    let required = 0;
-    let preferred = 0;
-    for (const line of skillText) {
-      const count = countMatches(skill.pattern, line.text);
-      if (line.importance === 'required') required += count;
-      else preferred += count;
-    }
+    const required = detected.get(skill.id)?.required ?? 0;
+    const preferred = detected.get(skill.id)?.preferred ?? 0;
     const inResume = countMatches(skill.pattern, resume) > 0;
     const inProfile = profile.has(skill.name.toLowerCase());
 
