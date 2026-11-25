@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 7 in progress (resume management done; job match and skill gap analyzers next).
+> **Status:** In development — Phase 7 in progress (resume management and job match analyzer done; skill gap analyzer next).
 
 ## Features
 
@@ -102,6 +102,7 @@ cp client/.env.example client/.env
    3. `20261124000000_application_list_view.sql` — applications joined with company names, for search and sorting
    4. `20261125000000_move_application_function.sql` — saves Kanban moves (status + card order) in one transaction
    5. `20261126000000_resume_storage.sql` — private `resumes` storage bucket (PDF, 5 MB max) with per-user folder policies
+   6. `20261127000000_seed_skills.sql` — catalog of 123 skills (with aliases) used by the job match analyzer
 3. **Authentication → Sign In / Providers → Email**: for local development turn **Confirm email** off (see the email note below).
 4. **Authentication → URL Configuration**: set **Site URL** to `http://localhost:5173` and add `http://localhost:5173/**` under **Redirect URLs**.
 5. **Project Settings → API Keys**: copy the **Project URL** and the **publishable key** (`sb_publishable_…`) into both `client/.env` and `server/.env`.
@@ -133,6 +134,7 @@ In development, Vite proxies `/api/*` requests to the Express server, so the fro
 | `npm run dev:server` | Start only the API (auto-restarts)       |
 | `npm run build`      | Type-check and build the frontend        |
 | `npm run lint`       | Lint the frontend                        |
+| `npm test -w server` | Run server unit tests (Node test runner) |
 
 ## REST API
 
@@ -155,6 +157,16 @@ All endpoints except `/api/health` require `Authorization: Bearer <Supabase acce
 | PATCH / DELETE | `/api/reminders/:id` | Update (including `isCompleted`) or delete a reminder |
 | GET / POST | `/api/resumes` | List / register an uploaded PDF (file goes directly to Supabase Storage) |
 | PATCH / DELETE | `/api/resumes/:id` | Rename, set default, or delete (also removes the stored file) |
+| POST | `/api/job-match/analyze` | Rule-based match of a resume against a job description |
+
+## How the job match score works
+
+The match score is **approximate and rule-based — not an AI prediction**.
+
+1. Skills from a catalog of 123 (with aliases such as `react.js` → React) are found in the job description using whole-term matching, so "Java" is not found inside "JavaScript".
+2. Lines under headings like *Nice to have* or phrases like *is a plus* mark skills as **preferred**; others are **required**. *About us* and *Benefits* sections are ignored.
+3. Each skill gets a weight (required 3, preferred 1, +0.5 per extra mention, max +1).
+4. Score = weight of skills found in your resume or saved skills ÷ total weight × 100.
 
 ## Environment variables
 
