@@ -78,6 +78,12 @@ describe('required vs preferred', () => {
     assert.deepEqual(importance, { Docker: 'preferred', React: 'required' });
   });
 
+  it('only downgrades the sentence that says "is a plus"', () => {
+    const result = analyze('Must have React and Node.js. Docker is a plus.');
+    const importance = Object.fromEntries(result.missing.map((s) => [s.name, s.importance]));
+    assert.deepEqual(importance, { React: 'required', 'Node.js': 'required', Docker: 'preferred' });
+  });
+
   it('weights required skills more than preferred ones in the score', () => {
     // React 3 + Node 3 (required) + Docker 1 + PostgreSQL 1 (preferred) = 8; candidate has React + Docker = 4
     const result = analyze(jd, 'React and Docker');
@@ -92,6 +98,11 @@ describe('required vs preferred', () => {
 });
 
 describe('scoring and extras', () => {
+  it('ignores every sentence of an "About us" line', () => {
+    const result = analyze('About us: we are a startup. Our backend team uses Java.\nRequirements:\n- React');
+    assert.deepEqual(names(result.missing), ['React']);
+  });
+
   it('ignores technologies mentioned in an "About us" section', () => {
     const result = analyze('About us: our backend team uses Java.\nRequirements:\n- React');
     assert.deepEqual(names(result.missing), ['React']);
