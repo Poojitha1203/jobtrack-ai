@@ -5,11 +5,13 @@ import type { MatchResult } from '../lib/matching/analyzer.js';
 import type { SkillGapResult, SkillLevel } from '../lib/matching/skillGap.js';
 import type { PracticeStatus, QuestionCategory, QuestionDifficulty } from '../constants/interviewPrep.js';
 import type { CategoryRecommendation } from '../lib/interviewPrep/recommend.js';
+import type { PlanId, PlanLimits } from '../constants/plans.js';
 
 export interface ApiErrorResponse {
   error: {
     message: string;
     details?: Record<string, string[]>;
+    code?: string;
   };
 }
 
@@ -150,6 +152,7 @@ export interface UserSkillResponse {
 
 export interface SkillGapResponse extends SkillGapResult {
   resumeTitle: string | null;
+  planLimited: { hiddenGaps: number } | null;
 }
 
 export interface InterviewQuestionResponse {
@@ -173,11 +176,45 @@ export interface QuestionListResponse {
     notStarted: number;
     byCategory: { category: QuestionCategory; total: number; confident: number; practicing: number }[];
   };
+  planLimited: { lockedQuestions: number } | null;
 }
 
 export interface PrepRecommendationsResponse {
   context: { jobTitle: string; company: string | null } | null;
   recommendations: CategoryRecommendation[];
+}
+
+export interface BillingOverviewResponse {
+  plan: PlanId;
+  subscription: {
+    status: 'active' | 'cancelled' | 'expired';
+    currentPeriodStart: string;
+    currentPeriodEnd: string | null;
+    cancelAtPeriodEnd: boolean;
+  } | null;
+  limits: PlanLimits;
+  usage: { applications: number; resumes: number };
+  plans: { id: PlanId; name: string; pricePaise: number; periodDays: number; limits: PlanLimits }[];
+  payments: { enabled: boolean; testMode: true; keyId: string | null };
+}
+
+export interface CheckoutOrderResponse {
+  orderId: string;
+  amount: number;
+  currency: string;
+  keyId: string;
+  planName: string;
+}
+
+export interface PaymentResponse {
+  id: string;
+  plan: PlanId;
+  amount: number;
+  currency: string;
+  status: 'created' | 'paid' | 'failed';
+  orderId: string;
+  paymentId: string | null;
+  createdAt: string;
 }
 
 export interface PaginatedResponse<T> {
