@@ -10,6 +10,7 @@ import { recommendCategories } from '../lib/interviewPrep/recommend.js';
 import { getSkillCatalog } from './skillCatalog.service.js';
 import { listUserSkills } from './skills.service.js';
 import { HttpError } from '../utils/HttpError.js';
+import { getPlan } from './plan.service.js';
 import type { InterviewQuestionResponse, PrepRecommendationsResponse, QuestionListResponse } from '../types/api.js';
 import type { ListQuestionsQuery, RecommendationsQuery, SaveProgressInput } from '../validators/interviewPrep.schema.js';
 
@@ -61,6 +62,8 @@ export async function listQuestions(supabase: SupabaseClient, query: ListQuestio
     .returns<QuestionRow[]>();
   if (error) throw new Error(`Failed to load questions: ${error.message}`);
 
+  const { limits } = await getPlan(supabase);
+  const allowed = limits.interviewDifficulties;
   const all = data.map(toResponse);
 
   // Stats always cover the whole bank, so progress bars don't change when you filter.
@@ -83,13 +86,15 @@ export async function listQuestions(supabase: SupabaseClient, query: ListQuestio
   const search = query.search?.toLowerCase();
   const items = all.filter(
     (q) =>
+      (!allowed || allowed.includes(q.difficulty)) &&
       (!query.categories || query.categories.includes(q.category)) &&
       (!query.difficulty || q.difficulty === query.difficulty) &&
       (!query.status || q.status === query.status) &&
       (!search || q.question.toLowerCase().includes(search) || q.tags.some((t) => t.toLowerCase().includes(search))),
   );
 
-  return { items, stats };
+  const locked = allowed ? all.filter((q) => !allowed.includes(q.difficulty)).length : 0;
+  return { items, stats, planLimited: locked > 0 ? { lockedQuestions: locked } : null };
 }
 
 export async function saveProgress(
