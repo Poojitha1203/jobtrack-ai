@@ -22,6 +22,7 @@ import { ResumesPage } from './pages/ResumesPage.tsx';
 import { JobMatchPage } from './pages/JobMatchPage.tsx';
 import { SkillGapPage } from './pages/SkillGapPage.tsx';
 import { InterviewPrepPage } from './pages/InterviewPrepPage.tsx';
+import { SubscriptionPage } from './pages/SubscriptionPage.tsx';
 import { ComingSoonPage } from './pages/ComingSoonPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import { NAV_ITEMS } from './config/navigation.ts';
@@ -40,6 +41,7 @@ const BUILT_PAGES: Record<string, ReactNode> = {
   '/job-match': <JobMatchPage />,
   '/skill-gap': <SkillGapPage />,
   '/interview-prep': <InterviewPrepPage />,
+  '/subscription': <SubscriptionPage />,
 };
 
 // Pages with heavy libraries (e.g. Recharts) are downloaded only when first opened.

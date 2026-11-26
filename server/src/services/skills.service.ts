@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { aggregateSkillGap, type SkillLevel, type UserSkillState } from '../lib/matching/skillGap.js';
 import { getSkillCatalog } from './skillCatalog.service.js';
 import { HttpError } from '../utils/HttpError.js';
+import { getPlan } from './plan.service.js';
 import type { CatalogSkillResponse, SkillGapResponse, UserSkillResponse } from '../types/api.js';
 import type { UpsertUserSkillInput } from '../validators/userSkill.schema.js';
 
@@ -104,13 +105,20 @@ export async function getSkillGap(supabase: SupabaseClient): Promise<SkillGapRes
   );
   const descriptions = jobs.data.map((j) => j.job_description).filter((d) => d.trim().length > 0);
 
-  return {
-    ...aggregateSkillGap({
+  const { limits } = await getPlan(supabase);
+  const result = aggregateSkillGap({
       jobDescriptions: descriptions,
       catalog,
       userSkills: states,
       resumeText: resume.data?.extracted_text ?? '',
-    }),
+  });
+  const max = limits.skillGapPriorities;
+  const hidden = max !== null ? Math.max(0, result.gaps.length - max) : 0;
+
+  return {
+    ...result,
+    gaps: max !== null ? result.gaps.slice(0, max) : result.gaps,
     resumeTitle: resume.data?.title ?? null,
+    planLimited: hidden > 0 ? { hiddenGaps: hidden } : null,
   };
 }

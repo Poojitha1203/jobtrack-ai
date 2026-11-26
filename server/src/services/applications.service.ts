@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { SORT_COLUMNS, type ApplicationStatus, type JobType, type WorkMode } from '../constants/application.js';
 import { findOrCreateCompany } from './companies.service.js';
+import { countRows, getPlan } from './plan.service.js';
+import { PLAN_LIMIT } from '../constants/plans.js';
 import { HttpError } from '../utils/HttpError.js';
 import { escapeLike, sanitizeSearchTerm } from '../utils/parse.js';
 import type { ApplicationResponse, PaginatedResponse } from '../types/api.js';
@@ -162,6 +164,16 @@ export async function createApplication(
   userId: string,
   input: CreateApplicationInput,
 ): Promise<ApplicationResponse> {
+  const { limits } = await getPlan(supabase);
+  if (limits.applications !== null && (await countRows(supabase, 'applications')) >= limits.applications) {
+    throw new HttpError(
+      403,
+      `The Free plan includes up to ${limits.applications} applications. Upgrade to Pro for unlimited applications.`,
+      undefined,
+      PLAN_LIMIT,
+    );
+  }
+
   const { companyName, ...fields } = input;
   const company = await findOrCreateCompany(supabase, userId, companyName);
 

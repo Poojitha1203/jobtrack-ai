@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 9 (analytics) complete.
+> **Status:** In development — Phase 10 (subscriptions with Razorpay Test Mode) complete.
 
 ## Features
 
@@ -166,6 +166,11 @@ All endpoints except `/api/health` require `Authorization: Bearer <Supabase acce
 | GET | `/api/interview-prep/questions` | Question bank with your progress (`categories`, `difficulty`, `status`, `search`) |
 | GET | `/api/interview-prep/recommendations` | Question categories for a job (`applicationId`) or your skills |
 | PUT | `/api/interview-prep/progress/:questionId` | Save practice status and notes |
+| GET | `/api/billing/overview` | Current plan, limits, usage and whether test payments are configured |
+| GET | `/api/billing/payments` | Your test payment history |
+| POST | `/api/billing/orders` | Create a Razorpay **test** order for Pro |
+| POST | `/api/billing/verify` | Verify the payment signature server-side, then upgrade |
+| POST | `/api/billing/cancel` · `/api/billing/downgrade` | Cancel at period end / downgrade now (simulated) |
 | GET | `/api/analytics?months=3\|6\|12\|0` | Rates, monthly trends, funnel, status, interviews by company, top skills, source effectiveness (`0` = all time) |
 
 ## How the job match score works
@@ -180,6 +185,20 @@ The match score is **approximate and rule-based — not an AI prediction**.
 ### Skill gap priorities
 
 Every saved job description is scanned with the same engine. A skill you don't have yet is **high** priority when at least 40% of your jobs mention it or 3+ require it, **medium** at 20% or when at least one job requires it, otherwise **low**. Skills saved in *My skills* or found in your default resume count as "have".
+
+## Plans & test payments
+
+| | Free | Pro (₹199 / 30 days, **test mode**) |
+|---|---|---|
+| Applications | up to 50 | unlimited |
+| Resumes | 1 | unlimited |
+| Analytics | last 3 months | any range |
+| Interview prep | easy questions | all questions |
+| Skill gap | top 3 priorities | full list |
+
+Payments use **Razorpay Test Mode only** — the server refuses live keys (`rzp_live_…`). Checkout returns a payment ID and signature; the server recomputes `HMAC-SHA256(order_id + "|" + payment_id, key_secret)` using the order ID **from its own database** and upgrades only if it matches. Subscription and payment rows are written with the Supabase secret key on the server; users can only read their own (RLS).
+
+To test: create a free Razorpay account, switch the Dashboard to **Test Mode**, generate API keys, and put them in `server/.env` with `SUPABASE_SECRET_KEY`. In checkout, pay with UPI `success@razorpay` (or `failure@razorpay`).
 
 ## Environment variables
 

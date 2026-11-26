@@ -13,7 +13,7 @@ export function listQuestions(query: QuestionQuery = {}) {
   if (query.difficulty) params.set('difficulty', query.difficulty);
   if (query.status) params.set('status', query.status);
   if (query.search) params.set('search', query.search);
-  return apiRequest<{ items: InterviewQuestion[]; stats: QuestionStats }>(`/interview-prep/questions?${params}`);
+  return apiRequest<{ items: InterviewQuestion[]; stats: QuestionStats; planLimited: { lockedQuestions: number } | null }>(`/interview-prep/questions?${params}`);
 }
 
 export function getPrepRecommendations(target: { applicationId?: string; jobTitle?: string } = {}) {

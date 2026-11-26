@@ -13,7 +13,14 @@ const envSchema = z.object({
   // Publishable key: low-privilege, Row Level Security applies. Used to act AS the signed-in user.
   SUPABASE_PUBLISHABLE_KEY: z.string('is required (starts with sb_publishable_)'),
   // Secret key: bypasses RLS. Only needed from Phase 10 (payments) and Phase 11 (admin).
-  SUPABASE_SECRET_KEY: z.string().min(1).optional(),
+  SUPABASE_SECRET_KEY: z
+    .string()
+    .min(1)
+    .refine((key) => !key.startsWith('sb_publishable_'), 'is a PUBLISHABLE key — use a SECRET key (starts with sb_secret_)')
+    .optional(),
+  // Razorpay TEST mode only — live keys (rzp_live_…) are rejected so no real payment can ever be taken.
+  RAZORPAY_KEY_ID: z.string().regex(/^rzp_test_/, 'must be a TEST key (starts with rzp_test_)').optional(),
+  RAZORPAY_KEY_SECRET: z.string().min(1).optional(),
 });
 
 // Treat empty values (e.g. `SUPABASE_SECRET_KEY=`) as "not set".
@@ -45,7 +52,12 @@ export const env = {
   supabaseUrl: values.SUPABASE_URL,
   supabasePublishableKey: values.SUPABASE_PUBLISHABLE_KEY,
   supabaseSecretKey: values.SUPABASE_SECRET_KEY,
+  razorpayKeyId: values.RAZORPAY_KEY_ID,
+  razorpayKeySecret: values.RAZORPAY_KEY_SECRET,
 };
+
+/** Payments work only when the test keys and the Supabase secret key (to write billing rows) are set. */
+export const paymentsEnabled = Boolean(env.razorpayKeyId && env.razorpayKeySecret && env.supabaseSecretKey);
 
 export type NodeEnv = typeof env.nodeEnv;
 

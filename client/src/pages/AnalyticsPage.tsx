@@ -11,6 +11,9 @@ import { ChartCard, DataTable } from '../components/analytics/ChartCard.tsx';
 import { ActivityChart, FUNNEL_COLORS, HorizontalBarChart, ResponseRateChart } from '../components/analytics/Charts.tsx';
 import { useAsyncData } from '../hooks/useAsyncData.ts';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.ts';
+import { usePlan } from '../hooks/usePlan.ts';
+import { UpgradeBanner } from '../components/billing/UpgradeBanner.tsx';
+import { Lock } from 'lucide-react';
 import { getAnalytics } from '../services/analytics.ts';
 import { STATUS_META } from '../lib/status.ts';
 import { cn } from '../lib/cn.ts';
@@ -35,6 +38,9 @@ function Kpi({ label, value, hint }: { label: string; value: string; hint: strin
 
 export function AnalyticsPage() {
   useDocumentTitle('Analytics');
+  const { billing } = usePlan();
+  const maxMonths = billing?.limits.analyticsMonths ?? null;
+  const isLocked = (value: AnalyticsRange) => maxMonths !== null && (value === 0 || value > maxMonths);
   const [range, setRange] = useState<AnalyticsRange>(6);
   const { data, error, loading, reload } = useAsyncData(() => getAnalytics(range), `analytics:${range}`);
 
@@ -52,6 +58,7 @@ export function AnalyticsPage() {
           )}
         >
           {r.label}
+          {isLocked(r.value) && <Lock className="ml-1 inline size-3 opacity-60" aria-label="Pro" />}
         </button>
       ))}
     </div>
@@ -85,7 +92,8 @@ export function AnalyticsPage() {
   }
 
   const { summary } = data;
-  const rangeText = range === 0 ? 'all time' : `the last ${range} months`;
+  const shownMonths = data.planLimited ? data.planLimited.maxMonths : range;
+  const rangeText = shownMonths === 0 ? 'all time' : `the last ${shownMonths} months`;
 
   if (summary.total === 0) {
     return (
@@ -111,6 +119,12 @@ export function AnalyticsPage() {
   return (
     <div className={cn('space-y-6 transition-opacity', loading && 'opacity-60')}>
       <PageHeader title="Analytics" description={`Trends across your job search for ${rangeText}.`} actions={filters} />
+
+      {data.planLimited && (
+        <UpgradeBanner>
+          The Free plan shows the last {data.planLimited.maxMonths} months. Upgrade to Pro for 6-month, 12-month and all-time analytics.
+        </UpgradeBanner>
+      )}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Kpi label="Applications sent" value={summary.submitted.toLocaleString()} hint={`${summary.total} tracked incl. wishlist`} />

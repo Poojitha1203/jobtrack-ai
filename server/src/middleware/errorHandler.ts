@@ -36,6 +36,7 @@ export const errorHandler = (
       // Never leak internal error details (stack traces, SQL, etc.) in production.
       message: status >= 500 && isProduction ? 'Internal server error' : message,
       ...(err instanceof HttpError && err.details ? { details: err.details } : {}),
+      ...(err instanceof HttpError && err.code ? { code: err.code } : {}),
     },
   });
 };
