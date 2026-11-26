@@ -1,6 +1,3 @@
-// Small typed wrapper around fetch for talking to our Express API.
-// It automatically attaches the signed-in user's access token, so protected
-// endpoints know who is calling. Every feature calls apiRequest<T>().
 
 import { supabase } from '../lib/supabase.ts';
 import type { ApiErrorResponse, HealthResponse } from '../types/api.ts';
@@ -11,12 +8,15 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
 export class ApiError extends Error {
   readonly status: number;
   readonly details?: Record<string, string[]>;
+  /** e.g. "PLAN_LIMIT" when a Free plan limit was hit. */
+  readonly code?: string;
 
-  constructor(status: number, message: string, details?: Record<string, string[]>) {
+  constructor(status: number, message: string, details?: Record<string, string[]>, code?: string) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.details = details;
+    this.code = code;
   }
 }
 
@@ -46,6 +46,7 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
       response.status,
       body?.error?.message ?? `Request failed with status ${response.status}`,
       body?.error?.details,
+      body?.error?.code,
     );
   }
 

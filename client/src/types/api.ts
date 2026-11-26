@@ -1,11 +1,10 @@
-// Shapes of JSON responses returned by the Express API.
-// Keep in sync with server/src/types/api.ts.
 
 export interface ApiErrorResponse {
   error: {
     message: string;
     /** Field-level validation messages, e.g. { fullName: ['Name is required'] } */
     details?: Record<string, string[]>;
+    code?: string;
   };
 }
 
