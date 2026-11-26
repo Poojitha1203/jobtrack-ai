@@ -10,6 +10,7 @@ import jobMatchRoutes from './jobMatch.routes.js';
 import skillRoutes from './skills.routes.js';
 import interviewPrepRoutes from './interviewPrep.routes.js';
 import analyticsRoutes from './analytics.routes.js';
+import billingRoutes from './billing.routes.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
@@ -26,5 +27,6 @@ router.use('/job-match', requireAuth, jobMatchRoutes);
 router.use('/skills', requireAuth, skillRoutes);
 router.use('/interview-prep', requireAuth, interviewPrepRoutes);
 router.use('/analytics', requireAuth, analyticsRoutes);
+router.use('/billing', requireAuth, billingRoutes);
 
 export default router;
