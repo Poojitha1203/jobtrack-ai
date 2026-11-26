@@ -9,6 +9,8 @@ import {
   GraduationCap,
   LayoutDashboard,
   ListChecks,
+  ShieldCheck,
+  Users,
   MessagesSquare,
   Settings,
   SquareKanban,
@@ -69,11 +71,21 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: 'Settings', path: '/settings', icon: Settings, phase: 3, description: 'Profile, weekly goal and account preferences.' },
     ],
   },
-  // The admin section is added in Phase 11 and shown only to admin users.
 ];
+
+/** Shown in the sidebar only for admins. The API enforces access separately. */
+export const ADMIN_SECTION: NavSection = {
+  title: 'Admin',
+  items: [
+    { label: 'Admin overview', path: '/admin', icon: ShieldCheck, phase: 11, description: 'Platform-wide users, applications, subscriptions and system health.' },
+    { label: 'Users', path: '/admin/users', icon: Users, phase: 11, description: 'Search users, change roles and grant or revoke Pro.' },
+  ],
+};
 
 export const NAV_ITEMS: NavItem[] = NAV_SECTIONS.flatMap((section) => section.items);
 
-/** Finds the nav item for a URL, including nested pages like /applications/123. */
+const ALL_ITEMS = [...NAV_ITEMS, ...ADMIN_SECTION.items].sort((a, b) => b.path.length - a.path.length);
+
+/** Finds the nav item for a URL, including nested pages like /applications/123 (longest match wins). */
 export const findNavItem = (pathname: string) =>
-  NAV_ITEMS.find((item) => pathname === item.path || pathname.startsWith(`${item.path}/`));
+  ALL_ITEMS.find((item) => pathname === item.path || pathname.startsWith(`${item.path}/`));

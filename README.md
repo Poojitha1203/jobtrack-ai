@@ -2,7 +2,7 @@
 
 A smart job application tracker and career management platform. Organize applications, track progress on a Kanban board, manage resumes, analyze job descriptions for missing skills, prepare for interviews, and monitor job-search performance — all from one dashboard.
 
-> **Status:** In development — Phase 10 (subscriptions with Razorpay Test Mode) complete.
+> **Status:** In development — Phase 11 (admin dashboard and security testing) complete.
 
 ## Features
 
@@ -19,7 +19,7 @@ Planned for v1.0.0:
 - **Interview preparation** — categorized question bank with practice tracking
 - **Career analytics** — charts for status, sources, success rate, in-demand skills
 - **Subscriptions** — Free / Pro plan UI with **Razorpay Test Mode only** (no real payments)
-- **Admin dashboard** — role-based access, user & system statistics
+- **Admin dashboard** — role-based access, user management, user / application / subscription statistics, system overview
 
 ## Tech stack
 
@@ -71,6 +71,7 @@ jobtrack-ai/
 │       ├── app.ts          # Express app (no listen)
 │       └── server.ts       # Starts the HTTP server
 ├── supabase/migrations/    # SQL schema, RLS policies, triggers
+├── supabase/tests/         # Read-only SQL security checks
 ├── .github/                # Pull request template
 └── package.json            # npm workspaces + root scripts
 ```
@@ -104,6 +105,7 @@ cp client/.env.example client/.env
    5. `20261126000000_resume_storage.sql` — private `resumes` storage bucket (PDF, 5 MB max) with per-user folder policies
    6. `20261127000000_seed_skills.sql` — catalog of 123 skills (with aliases) used by the job match analyzer
    7. `20261128000000_seed_interview_questions.sql` — 61 interview questions with suggested answers across 10 categories
+   8. `20261129000000_admin_views.sql` — reporting views for the admin dashboard (server-only, not readable by users)
 3. **Authentication → Sign In / Providers → Email**: for local development turn **Confirm email** off (see the email note below).
 4. **Authentication → URL Configuration**: set **Site URL** to `http://localhost:5173` and add `http://localhost:5173/**` under **Redirect URLs**.
 5. **Project Settings → API Keys**: copy the **Project URL** and the **publishable key** (`sb_publishable_…`) into both `client/.env` and `server/.env`.
@@ -112,8 +114,9 @@ cp client/.env.example client/.env
 > Storage: 1 GB total, 50 MB max per file (this app limits resumes to 5 MB), 5 GB egress per month.
 > Supabase's built-in email sends only **to your project team's addresses** and only about **2 emails per hour**. That's enough to test password reset with your own email. For real users, connect a free SMTP provider in **Authentication → Emails → SMTP Settings**.
 
-To make yourself an admin (needed in Phase 11), run in the SQL Editor:
+To make yourself an admin, run in the SQL Editor (users can never change their own role through the app or API):
 `update public.profiles set role = 'admin' where email = 'you@example.com';`
+After that, admins can promote other users from **Admin → Users**.
 
 ### Run locally
 
@@ -135,7 +138,7 @@ In development, Vite proxies `/api/*` requests to the Express server, so the fro
 | `npm run dev:server` | Start only the API (auto-restarts)       |
 | `npm run build`      | Type-check and build the frontend        |
 | `npm run lint`       | Lint the frontend                        |
-| `npm test -w server` | Run server unit tests (Node test runner) |
+| `npm test -w server` | Run server unit and security tests (Node test runner) |
 
 ## REST API
 
@@ -172,6 +175,12 @@ All endpoints except `/api/health` require `Authorization: Bearer <Supabase acce
 | POST | `/api/billing/verify` | Verify the payment signature server-side, then upgrade |
 | POST | `/api/billing/cancel` · `/api/billing/downgrade` | Cancel at period end / downgrade now (simulated) |
 | GET | `/api/analytics?months=3\|6\|12\|0` | Rates, monthly trends, funnel, status, interviews by company, top skills, source effectiveness (`0` = all time) |
+| GET | `/api/admin/overview` | **Admin only.** User, application, subscription and payment totals, sign-ups per month, system status |
+| GET | `/api/admin/users` | **Admin only.** Users with plan and activity (`search`, `plan`, `role`, `page`, `pageSize`) |
+| PATCH | `/api/admin/users/:id` | **Admin only.** `{ role }` or `{ plan }` — admins can't change their own role |
+| GET | `/api/admin/payments` | **Admin only.** Test payments across all users (`status`, `page`, `pageSize`) |
+
+Errors are JSON: `{ "error": { "message", "details?", "code?" } }`. Non-admins get `403` from every `/api/admin` endpoint.
 
 ## How the job match score works
 
@@ -199,6 +208,17 @@ Every saved job description is scanned with the same engine. A skill you don't h
 Payments use **Razorpay Test Mode only** — the server refuses live keys (`rzp_live_…`). Checkout returns a payment ID and signature; the server recomputes `HMAC-SHA256(order_id + "|" + payment_id, key_secret)` using the order ID **from its own database** and upgrades only if it matches. Subscription and payment rows are written with the Supabase secret key on the server; users can only read their own (RLS).
 
 To test: create a free Razorpay account, switch the Dashboard to **Test Mode**, generate API keys, and put them in `server/.env` with `SUPABASE_SECRET_KEY`. In checkout, pay with UPI `success@razorpay` (or `failure@razorpay`).
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for the full model and how to test it. In short:
+
+- **Row Level Security** on every table; users can read and change only their own rows. Roles, subscriptions and payments can't be written by users at all.
+- **Authorization on the server**: every `/api` route except health requires a valid Supabase token, and `/api/admin` re-checks the `admin` role in the database on each request.
+- **Input validation** with strict zod schemas (unknown fields rejected), UUID-only ids, http(s)-only links, escaped search terms.
+- **Rate limiting** (600 requests / 15 min per IP, 10 payment calls / min per user), security headers (helmet), CORS allow-list, 1 MB body limit, `Cache-Control: no-store`.
+- **Payments** are verified server-side with HMAC-SHA256 and test keys only; secrets never reach the browser.
+- **Automated tests** (`npm test -w server`) check that every protected endpoint rejects missing, malformed and forged tokens, and cover admin access, CORS, headers, rate limits and injection attempts. [`supabase/tests/security_checks.sql`](supabase/tests/security_checks.sql) audits the database configuration.
 
 ## Environment variables
 

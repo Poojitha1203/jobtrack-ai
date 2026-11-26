@@ -1,11 +1,12 @@
 import { Link, NavLink } from 'react-router';
 import { Sparkles, X } from 'lucide-react';
-import { NAV_SECTIONS } from '../../config/navigation.ts';
+import { ADMIN_SECTION, NAV_SECTIONS } from '../../config/navigation.ts';
 import { cn } from '../../lib/cn.ts';
 import { buttonClasses } from '../../lib/buttonStyles.ts';
 import { Logo } from './Logo.tsx';
 import { ApiStatusIndicator } from './ApiStatusIndicator.tsx';
 import { usePlan } from '../../hooks/usePlan.ts';
+import { useAuth } from '../../hooks/useAuth.ts';
 
 interface SidebarProps {
   /** Only matters below the `lg` breakpoint; on desktop the sidebar is always visible. */
@@ -15,6 +16,8 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const { isPro } = usePlan();
+  const { profile } = useAuth();
+  const sections = profile?.role === 'admin' ? [...NAV_SECTIONS, ADMIN_SECTION] : NAV_SECTIONS;
   return (
     <>
       {/* Dark overlay behind the drawer on mobile. Clicking it closes the menu. */}
@@ -51,7 +54,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 pb-4" aria-label="Main">
-          {NAV_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <div key={section.title} className="mt-5 first:mt-2">
               <p className="px-3 text-xs font-semibold tracking-wide text-slate-400 uppercase">
                 {section.title}
@@ -61,6 +64,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                   <li key={path}>
                     <NavLink
                       to={path}
+                      end={path === ADMIN_SECTION.items[0]?.path}
                       onClick={onClose}
                       className={({ isActive }) =>
                         cn(

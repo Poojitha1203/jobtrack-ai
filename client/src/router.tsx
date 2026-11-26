@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router';
 import { AppLayout } from './layouts/AppLayout.tsx';
 import { ProtectedRoute } from './components/auth/ProtectedRoute.tsx';
 import { GuestRoute } from './components/auth/GuestRoute.tsx';
+import { AdminRoute } from './components/auth/AdminRoute.tsx';
 import { LandingPage } from './pages/LandingPage.tsx';
 import { LoginPage } from './pages/auth/LoginPage.tsx';
 import { RegisterPage } from './pages/auth/RegisterPage.tsx';
@@ -80,6 +81,13 @@ export const router = createBrowserRouter([
           ...Object.entries(LAZY_PAGES).map(([path, lazy]) => ({ path, lazy })),
           { path: '/applications/:id', element: <ApplicationDetailsPage /> },
           { path: '/companies/:id', element: <CompanyDetailsPage /> },
+          {
+            element: <AdminRoute />,
+            children: [
+              { path: '/admin', lazy: () => import('./pages/admin/AdminOverviewPage.tsx').then((m) => ({ Component: m.AdminOverviewPage })) },
+              { path: '/admin/users', lazy: () => import('./pages/admin/AdminUsersPage.tsx').then((m) => ({ Component: m.AdminUsersPage })) },
+            ],
+          },
         ],
       },
     ],

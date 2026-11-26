@@ -11,7 +11,9 @@ import skillRoutes from './skills.routes.js';
 import interviewPrepRoutes from './interviewPrep.routes.js';
 import analyticsRoutes from './analytics.routes.js';
 import billingRoutes from './billing.routes.js';
+import adminRoutes from './admin.routes.js';
 import { requireAuth } from '../middleware/requireAuth.js';
+import { requireAdmin } from '../middleware/requireAdmin.js';
 
 const router = Router();
 
@@ -28,5 +30,6 @@ router.use('/skills', requireAuth, skillRoutes);
 router.use('/interview-prep', requireAuth, interviewPrepRoutes);
 router.use('/analytics', requireAuth, analyticsRoutes);
 router.use('/billing', requireAuth, billingRoutes);
+router.use('/admin', requireAuth, requireAdmin, adminRoutes);
 
 export default router;
