@@ -223,3 +223,42 @@ export interface PaginatedResponse<T> {
   page: number;
   pageSize: number;
 }
+
+export interface AdminOverviewResponse {
+  users: { total: number; newLast30Days: number; activeLast30Days: number; admins: number };
+  applications: {
+    total: number;
+    newLast30Days: number;
+    averagePerUser: number;
+    byStatus: { status: ApplicationStatus; count: number }[];
+  };
+  activity: { interviews: number; resumes: number };
+  subscriptions: { free: number; pro: number; cancelScheduled: number; conversionRate: number };
+  payments: { paid: number; failed: number; pending: number; revenuePaise: number; currency: 'INR' };
+  signupsByMonth: { month: string; label: string; count: number }[];
+  system: {
+    environment: string;
+    nodeVersion: string;
+    uptimeSeconds: number;
+    databaseLatencyMs: number;
+    paymentsConfigured: boolean;
+    generatedAt: string;
+  };
+}
+
+export interface AdminUserResponse {
+  id: string;
+  email: string;
+  fullName: string;
+  role: UserRole;
+  plan: PlanId;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  applicationCount: number;
+  lastActivityAt: string | null;
+  createdAt: string;
+}
+
+export interface AdminPaymentResponse extends PaymentResponse {
+  userEmail: string;
+}
