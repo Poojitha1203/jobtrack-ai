@@ -4,7 +4,7 @@ import { PageHeader } from '../components/layout/PageHeader.tsx';
 import { Card, CardHeader } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
 import { Alert } from '../components/ui/Alert.tsx';
-import { Badge, type BadgeTone } from '../components/ui/Badge.tsx';
+import { Badge } from '../components/ui/Badge.tsx';
 import { EmptyState } from '../components/ui/EmptyState.tsx';
 import { Skeleton } from '../components/ui/Skeleton.tsx';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog.tsx';
@@ -26,16 +26,10 @@ import { CheckoutClosedError, openRazorpayCheckout } from '../lib/razorpayChecko
 import { getDisplayName } from '../lib/user.ts';
 import { formatDateTime } from '../lib/format.ts';
 import { cn } from '../lib/cn.ts';
-import type { BillingOverview, Payment, PlanLimits } from '../types/billing.ts';
+import { PAYMENT_STATUS, rupees } from '../lib/billingFormat.ts';
+import type { BillingOverview, PlanLimits } from '../types/billing.ts';
 
 const longDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-const rupees = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
-
-const PAYMENT_STATUS: Record<Payment['status'], { label: string; tone: BadgeTone }> = {
-  paid: { label: 'Paid', tone: 'success' },
-  failed: { label: 'Failed', tone: 'danger' },
-  created: { label: 'Not completed', tone: 'neutral' },
-};
 
 function features(limits: PlanLimits): { text: string; included: boolean }[] {
   return [

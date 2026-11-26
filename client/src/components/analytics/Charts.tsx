@@ -40,6 +40,28 @@ export function ActivityChart({ data }: { data: AnalyticsReport['byMonth'] }) {
   );
 }
 
+interface ColumnChartProps<T> {
+  data: T[];
+  xKey: keyof T & string;
+  valueKey: keyof T & string;
+  valueName: string;
+}
+
+/** One series of vertical bars — the title names it, so no legend. */
+export function ColumnChart<T extends object>({ data, xKey, valueKey, valueName }: ColumnChartProps<T>) {
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+        <CartesianGrid vertical={false} stroke={CHART_INK.grid} />
+        <XAxis dataKey={xKey as string} tick={AXIS_TICK} tickLine={false} axisLine={{ stroke: CHART_INK.baseline }} />
+        <YAxis allowDecimals={false} tick={AXIS_TICK} tickLine={false} axisLine={false} />
+        <Tooltip cursor={CURSOR} content={(props) => <ChartTooltip {...props} />} />
+        <Bar dataKey={valueKey as string} name={valueName} fill={SERIES.primary} radius={[4, 4, 0, 0]} maxBarSize={24} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
 export function ResponseRateChart({ data }: { data: AnalyticsReport['byMonth'] }) {
   return (
     <ResponsiveContainer width="100%" height={260}>
