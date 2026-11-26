@@ -5,6 +5,7 @@ import { cn } from '../../lib/cn.ts';
 import { buttonClasses } from '../../lib/buttonStyles.ts';
 import { Logo } from './Logo.tsx';
 import { ApiStatusIndicator } from './ApiStatusIndicator.tsx';
+import { usePlan } from '../../hooks/usePlan.ts';
 
 interface SidebarProps {
   /** Only matters below the `lg` breakpoint; on desktop the sidebar is always visible. */
@@ -13,6 +14,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ open, onClose }: SidebarProps) {
+  const { isPro } = usePlan();
   return (
     <>
       {/* Dark overlay behind the drawer on mobile. Clicking it closes the menu. */}
@@ -90,21 +92,31 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         <div className="space-y-4 border-t border-slate-200 p-4">
-          <div className="rounded-xl bg-linear-to-br from-brand-600 to-brand-800 p-4 text-white">
-            <p className="flex items-center gap-1.5 text-sm font-semibold">
-              <Sparkles className="size-4" aria-hidden="true" /> Upgrade to Pro
-            </p>
-            <p className="mt-1 text-xs text-brand-100">
-              Unlimited applications, resume analysis and advanced analytics.
-            </p>
+          {isPro ? (
             <Link
               to="/subscription"
               onClick={onClose}
-              className="mt-3 inline-flex rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50"
+              className="flex items-center gap-2 rounded-xl bg-brand-50 px-3 py-2.5 text-sm font-medium text-brand-700 hover:bg-brand-100"
             >
-              View plans
+              <Sparkles className="size-4" aria-hidden="true" /> Pro plan
             </Link>
-          </div>
+          ) : (
+            <div className="rounded-xl bg-linear-to-br from-brand-600 to-brand-800 p-4 text-white">
+              <p className="flex items-center gap-1.5 text-sm font-semibold">
+                <Sparkles className="size-4" aria-hidden="true" /> Upgrade to Pro
+              </p>
+              <p className="mt-1 text-xs text-brand-100">
+                Unlimited applications, resume analysis and advanced analytics.
+              </p>
+              <Link
+                to="/subscription"
+                onClick={onClose}
+                className="mt-3 inline-flex rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50"
+              >
+                View plans
+              </Link>
+            </div>
+          )}
           <ApiStatusIndicator />
         </div>
       </aside>
