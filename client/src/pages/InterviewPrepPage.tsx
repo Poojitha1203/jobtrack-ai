@@ -9,6 +9,7 @@ import { EmptyState } from '../components/ui/EmptyState.tsx';
 import { Skeleton } from '../components/ui/Skeleton.tsx';
 import { SelectField } from '../components/ui/SelectField.tsx';
 import { QuestionCard } from '../components/interviewPrep/QuestionCard.tsx';
+import { UpgradeBanner } from '../components/billing/UpgradeBanner.tsx';
 import { PracticeModal } from '../components/interviewPrep/PracticeModal.tsx';
 import { useAsyncData } from '../hooks/useAsyncData.ts';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback.ts';
@@ -219,6 +220,13 @@ export function InterviewPrepPage() {
           </SelectField>
         </div>
       </div>
+
+      {questions.data?.planLimited && (
+        <UpgradeBanner>
+          The Free plan includes the easy questions. Upgrade to Pro to unlock {questions.data.planLimited.lockedQuestions} medium and hard
+          questions.
+        </UpgradeBanner>
+      )}
 
       {questions.error && (
         <Alert tone="error" title="Couldn't load questions">

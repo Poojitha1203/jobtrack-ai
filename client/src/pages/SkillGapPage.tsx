@@ -11,6 +11,7 @@ import { Skeleton } from '../components/ui/Skeleton.tsx';
 import { SelectField } from '../components/ui/SelectField.tsx';
 import { TextField } from '../components/ui/TextField.tsx';
 import { MySkillCard } from '../components/skills/MySkillCard.tsx';
+import { UpgradeBanner } from '../components/billing/UpgradeBanner.tsx';
 import { useAsyncData } from '../hooks/useAsyncData.ts';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.ts';
 import { useToast } from '../hooks/useToast.ts';
@@ -176,6 +177,14 @@ export function SkillGapPage() {
                 />
               ))}
             </ul>
+          )}
+          {report?.planLimited && (
+            <div className="border-t border-slate-100 p-4">
+              <UpgradeBanner>
+                {report.planLimited.hiddenGaps} more skill gap{report.planLimited.hiddenGaps === 1 ? '' : 's'} found. Upgrade to Pro for
+                the full learning plan.
+              </UpgradeBanner>
+            </div>
           )}
         </Card>
 

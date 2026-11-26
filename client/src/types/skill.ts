@@ -38,6 +38,7 @@ export interface SkillGapReport {
   gaps: DemandedSkill[];
   categories: { category: string; demanded: number; have: number }[];
   resumeTitle: string | null;
+  planLimited: { hiddenGaps: number } | null;
 }
 
 export type UserSkillChanges = Partial<Pick<UserSkill, 'level' | 'progress' | 'isLearningGoal'>>;

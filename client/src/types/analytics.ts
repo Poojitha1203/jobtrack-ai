@@ -23,6 +23,7 @@ export interface AnalyticsReport {
   interviewsByCompany: { company: string; interviews: number; passed: number }[];
   topSkills: { skill: string; jobs: number; percent: number }[];
   jobsWithDescriptions: number;
+  planLimited: { maxMonths: number } | null;
   sources: {
     source: string;
     applications: number;
