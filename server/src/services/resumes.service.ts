@@ -1,5 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { HttpError } from '../utils/HttpError.js';
+import { countRows, getPlan } from './plan.service.js';
+import { PLAN_LIMIT } from '../constants/plans.js';
 import type { ResumeResponse } from '../types/api.js';
 import type { CreateResumeInput, UpdateResumeInput } from '../validators/resume.schema.js';
 
@@ -60,6 +62,18 @@ export async function createResume(
   input: CreateResumeInput,
 ): Promise<ResumeResponse> {
   if (!input.filePath.startsWith(`${userId}/`)) throw new HttpError(403, 'You can only register files in your own folder');
+
+  const { limits } = await getPlan(supabase);
+  if (limits.resumes !== null && (await countRows(supabase, 'resumes')) >= limits.resumes) {
+    // Remove the file the browser already uploaded, so it doesn't use storage for nothing.
+    await supabase.storage.from(BUCKET).remove([input.filePath]);
+    throw new HttpError(
+      403,
+      `The Free plan includes ${limits.resumes} resume. Upgrade to Pro to keep multiple versions, or delete your current one first.`,
+      undefined,
+      PLAN_LIMIT,
+    );
+  }
 
   const { count } = await supabase.from('resumes').select('id', { count: 'exact', head: true });
   const makeDefault = input.isDefault === true || count === 0;
